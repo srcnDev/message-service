@@ -1,24 +1,43 @@
 package main
 
 import (
+	"context"
 	"log"
+	"os/signal"
+	"syscall"
+	"time"
 
-	"github.com/gin-gonic/gin"
+	"github.com/srcndev/message-service/config"
+	"github.com/srcndev/message-service/internal/app"
 )
 
 func main() {
-	router := gin.Default()
+	cfg, err := config.NewConfig()
+	if err != nil {
+		log.Fatalf("config init failed: %v", err)
+	}
 
-	router.SetTrustedProxies(nil)
+	application, err := app.New(cfg)
+	if err != nil {
+		log.Fatalf("app init failed: %v", err)
+	}
 
-	router.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "Hello World!",
-		})
-	})
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
 
-	log.Println("Server starting on :8080")
-	if err := router.Run(":8080"); err != nil {
-		log.Fatal("Failed to start server:", err)
+	go func() {
+		if runErr := application.Run(); runErr != nil {
+			log.Printf("server run error: %v", runErr)
+			stop()
+		}
+	}()
+
+	<-ctx.Done()
+
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	if err := application.Shutdown(shutdownCtx); err != nil {
+		log.Fatalf("graceful shutdown failed: %v", err)
 	}
 }

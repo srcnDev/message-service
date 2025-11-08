@@ -4,20 +4,28 @@ import (
 	"time"
 )
 
-// Service handles health check logic
-type Service struct {
+// Service defines health check operations
+type Service interface {
+	GetStatus() Status
+}
+
+// service handles health check logic
+type service struct {
 	startTime time.Time
 }
 
+// Compile-time interface compliance check
+var _ Service = (*service)(nil)
+
 // NewService creates a new health check service
-func NewService() *Service {
-	return &Service{
+func NewService() Service {
+	return &service{
 		startTime: time.Now(),
 	}
 }
 
 // GetStatus returns current health status
-func (s *Service) GetStatus() Status {
+func (s *service) GetStatus() Status {
 	return Status{
 		Status: "healthy",
 		Uptime: time.Since(s.startTime).String(),

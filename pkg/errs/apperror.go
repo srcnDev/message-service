@@ -13,6 +13,8 @@ type AppError struct {
 	Err        error  // Original error (nullable, for logging/debugging)
 }
 
+var _ error = (*AppError)(nil)
+
 // Error implements the error interface
 func (e *AppError) Error() string {
 	if e.Err != nil {

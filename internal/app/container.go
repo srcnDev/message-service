@@ -10,10 +10,10 @@ type Container struct {
 	Config *config.Config
 
 	// Services
-	HealthService *health.Service
+	HealthService health.Service
 
 	// Handlers
-	HealthHandler *health.Handler
+	HealthHandler health.Handler
 }
 
 // NewContainer creates and wires all dependencies

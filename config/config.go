@@ -14,6 +14,7 @@ type Config struct {
 	AppURL  string
 
 	Database      DatabaseConfig
+	Redis         RedisConfig
 	Webhook       WebhookConfig
 	MessageSender MessageSenderConfig
 }
@@ -25,6 +26,15 @@ type DatabaseConfig struct {
 	Username string
 	Password string
 	Name     string
+}
+
+// RedisConfig holds Redis connection settings
+type RedisConfig struct {
+	Host     string
+	Port     string
+	Password string
+	DB       int
+	Enabled  bool
 }
 
 // WebhookConfig holds webhook client settings
@@ -77,6 +87,17 @@ func NewConfig() (*Config, error) {
 		}
 	}
 
+	// Redis DB number
+	redisDB := 0
+	if dbStr := getEnv("REDIS_DB", ""); dbStr != "" {
+		if db, err := strconv.Atoi(dbStr); err == nil && db >= 0 {
+			redisDB = db
+		}
+	}
+
+	// Redis enabled flag (default: false for optional usage)
+	redisEnabled := getEnv("REDIS_ENABLED", "false") == "true"
+
 	cfg := &Config{
 		AppPort: getEnv("APP_PORT", "8000"),
 		AppURL:  getEnv("APP_URL", "http://localhost:8000"),
@@ -89,8 +110,16 @@ func NewConfig() (*Config, error) {
 			Name:     getEnv("POSTGRES_DB_NAME", "messagedb"),
 		},
 
+		Redis: RedisConfig{
+			Host:     getEnv("REDIS_HOST", "localhost"),
+			Port:     getEnv("REDIS_PORT", "6379"),
+			Password: getEnv("REDIS_PASSWORD", ""),
+			DB:       redisDB,
+			Enabled:  redisEnabled,
+		},
+
 		Webhook: WebhookConfig{
-			BaseURL:    getEnv("WEBHOOK_BASE_URL", "https://webhook.site/c3f13233-1ed4-429e-9649-8133b3b9c9cd"),
+			BaseURL:    getEnv("WEBHOOK_BASE_URL", "https://webhook.site/7d2fa94f-bb3c-47d7-b787-8aaacbd5097d"),
 			AuthKey:    getEnv("WEBHOOK_AUTH_KEY", "INS.me1x9uMcyYGlhKKQVPoc.bO3j9aZwRTOcA2Ywo"),
 			Timeout:    webhookTimeout,
 			MaxRetries: webhookMaxRetries,

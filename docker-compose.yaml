@@ -11,5 +11,20 @@ services:
     volumes:
       - psql_volume_bp:/var/lib/postgresql
 
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT}:6379"
+    command: redis-server
+    volumes:
+      - redis_volume_bp:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 volumes:
   psql_volume_bp:
+  redis_volume_bp:

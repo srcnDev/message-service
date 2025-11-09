@@ -2,9 +2,11 @@ package service
 
 import (
 	"context"
+	"time"
 
 	"github.com/srcndev/message-service/internal/apperror"
 	"github.com/srcndev/message-service/internal/domain"
+	"github.com/srcndev/message-service/internal/repository"
 	"github.com/srcndev/message-service/pkg/logger"
 	"github.com/srcndev/message-service/pkg/webhook"
 )
@@ -17,23 +19,33 @@ type MessageSenderService interface {
 
 type messageSenderService struct {
 	messageService MessageService
+	cacheRepo      repository.MessageCacheRepository
 	webhookClient  webhook.Client
 	batchSize      int
+	cacheEnabled   bool
 }
 
 // Compile-time interface compliance check
 var _ MessageSenderService = (*messageSenderService)(nil)
 
 // NewMessageSenderService creates a new message sender service
-func NewMessageSenderService(messageService MessageService, webhookClient webhook.Client, batchSize int) MessageSenderService {
+func NewMessageSenderService(
+	messageService MessageService,
+	cacheRepo repository.MessageCacheRepository,
+	webhookClient webhook.Client,
+	batchSize int,
+	cacheEnabled bool,
+) MessageSenderService {
 	if batchSize <= 0 {
 		batchSize = 2 // Default batch size from case study
 	}
 
 	return &messageSenderService{
 		messageService: messageService,
+		cacheRepo:      cacheRepo,
 		webhookClient:  webhookClient,
 		batchSize:      batchSize,
+		cacheEnabled:   cacheEnabled,
 	}
 }
 
@@ -92,6 +104,17 @@ func (s *messageSenderService) sendMessage(ctx context.Context, msg *domain.Mess
 	// Mark as sent with messageID from webhook
 	if err := s.messageService.SetSent(ctx, msg.ID, resp.MessageID); err != nil {
 		return apperror.ErrMarkSentFailed.WithError(err)
+	}
+
+	// Cache to Redis if enabled (Bonus feature)
+	if s.cacheEnabled && s.cacheRepo != nil {
+		sentAt := time.Now()
+		if cacheErr := s.cacheRepo.CacheSentMessage(ctx, resp.MessageID, sentAt); cacheErr != nil {
+			// Log but don't fail the operation
+			logger.Error("Failed to cache message %s to Redis: %v", resp.MessageID, cacheErr)
+		} else {
+			logger.Debug("Message %s cached to Redis successfully", resp.MessageID)
+		}
 	}
 
 	logger.Info("Message %d sent successfully (webhook messageId: %s)", msg.ID, resp.MessageID)

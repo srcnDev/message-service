@@ -92,7 +92,8 @@ func (c *client) SendMessage(ctx context.Context, req *SendMessageRequest) (*Sen
 		return nil, ErrServerError.WithError(fmt.Errorf("status: %d", resp.StatusCode))
 	}
 
-	if resp.StatusCode != 202 {
+	// Accept any 2xx success status (200-299)
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return nil, ErrInvalidRequest.WithError(fmt.Errorf("unexpected status: %d", resp.StatusCode))
 	}
 

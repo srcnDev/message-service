@@ -1,0 +1,51 @@
+package database
+
+import (
+	"fmt"
+	"log"
+	"time"
+
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+
+	"github.com/srcndev/message-service/config"
+)
+
+// NewPostgresDB creates a new PostgreSQL database connection
+func NewPostgresDB(cfg *config.Config) (*gorm.DB, error) {
+	dsn := fmt.Sprintf(
+		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=UTC",
+		cfg.Database.Host,
+		cfg.Database.Username,
+		cfg.Database.Password,
+		cfg.Database.Name,
+		cfg.Database.Port,
+	)
+
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+		NowFunc: func() time.Time {
+			return time.Now().UTC()
+		},
+	})
+	if err != nil {
+		return nil, fmt.Errorf("%w: %v", errDatabaseConnectionFailed, err)
+	}
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, fmt.Errorf("%w: %v", errDatabaseInstanceFailed, err)
+	}
+
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxOpenConns(100)
+	sqlDB.SetConnMaxLifetime(time.Hour)
+
+	if err := sqlDB.Ping(); err != nil {
+		return nil, fmt.Errorf("%w: %v", errDatabasePingFailed, err)
+	}
+
+	log.Println("Database connection established")
+	return db, nil
+}

@@ -7,6 +7,7 @@ import (
 // Handler interface defines health check HTTP handlers
 type Handler interface {
 	Check(c *gin.Context)
+	RegisterRoutes(r *gin.RouterGroup)
 }
 
 // handler is the private implementation of Handler interface
@@ -22,6 +23,11 @@ func NewHandler(service Service) Handler {
 	return &handler{
 		service: service,
 	}
+}
+
+// RegisterRoutes registers health check routes
+func (h *handler) RegisterRoutes(r *gin.RouterGroup) {
+	r.GET("/health", h.Check)
 }
 
 // Check handles GET /health endpoint

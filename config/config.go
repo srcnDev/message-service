@@ -10,6 +10,17 @@ import (
 type Config struct {
 	AppPort string
 	AppURL  string
+
+	Database DatabaseConfig
+}
+
+// DatabaseConfig holds database connection settings
+type DatabaseConfig struct {
+	Host     string
+	Port     string
+	Username string
+	Password string
+	Name     string
 }
 
 func NewConfig() (*Config, error) {
@@ -21,6 +32,14 @@ func NewConfig() (*Config, error) {
 	cfg := &Config{
 		AppPort: getEnv("APP_PORT", "8080"),
 		AppURL:  getEnv("APP_URL", "http://localhost:8080"),
+
+		Database: DatabaseConfig{
+			Host:     getEnv("POSTGRES_DB_HOST", "localhost"),
+			Port:     getEnv("POSTGRES_DB_PORT", "5432"),
+			Username: getEnv("POSTGRES_DB_USERNAME", "user"),
+			Password: getEnv("POSTGRES_DB_PASSWORD", "password"),
+			Name:     getEnv("POSTGRES_DB_NAME", "messagedb"),
+		},
 	}
 
 	if err := cfg.validate(); err != nil {
@@ -36,6 +55,21 @@ func (c *Config) validate() error {
 	}
 	if c.AppURL == "" {
 		return errAppURLEmpty
+	}
+	if c.Database.Host == "" {
+		return errDBHostEmpty
+	}
+	if c.Database.Port == "" {
+		return errDBPortEmpty
+	}
+	if c.Database.Username == "" {
+		return errDBUsernameEmpty
+	}
+	if c.Database.Password == "" {
+		return errDBPasswordEmpty
+	}
+	if c.Database.Name == "" {
+		return errDBNameEmpty
 	}
 	return nil
 }

@@ -35,8 +35,21 @@ run:
 
 # Test the application
 test:
-	@echo "Testing..."
+	@echo "Running tests..."
 	@go test ./... -v
+
+# Test with coverage
+test-coverage:
+	@echo "Running tests with coverage..."
+	@go test ./... -cover -coverprofile=coverage.out
+	@echo "\nCoverage summary:"
+	@go tool cover -func=coverage.out | grep total
+
+# View coverage in browser
+test-coverage-html:
+	@echo "Generating HTML coverage report..."
+	@go test ./... -coverprofile=coverage.out
+	@go tool cover -html=coverage.out
 
 # Clean the binary
 clean:
@@ -59,4 +72,4 @@ db-reset:
 	@$(MAKE) migrate-seed
 	@echo "Database ready with seed data!"
 
-.PHONY: build build-migrate migrate migrate-seed run test clean install swag db-reset
+.PHONY: build build-migrate migrate migrate-seed run test test-coverage test-coverage-html clean install swag db-reset

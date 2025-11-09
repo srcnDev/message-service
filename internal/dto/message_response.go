@@ -6,19 +6,6 @@ import (
 	"github.com/srcndev/message-service/internal/domain"
 )
 
-// CreateMessageRequest represents the request payload for creating a message
-type CreateMessageRequest struct {
-	PhoneNumber string `json:"phoneNumber" binding:"required,e164" example:"+905551111111"`
-	Content     string `json:"content" binding:"required,max=500" example:"Hello"`
-}
-
-// UpdateMessageRequest represents the request payload for updating a message
-type UpdateMessageRequest struct {
-	PhoneNumber *string               `json:"phoneNumber,omitempty" binding:"omitempty,e164"`
-	Content     *string               `json:"content,omitempty" binding:"omitempty,max=500"`
-	Status      *domain.MessageStatus `json:"status,omitempty" binding:"omitempty,oneof=pending sent failed"`
-}
-
 // MessageResponse represents the response payload for a message
 type MessageResponse struct {
 	ID          uint                 `json:"id" example:"1"`

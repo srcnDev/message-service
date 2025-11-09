@@ -1,22 +1,22 @@
-package errs
+package customerror
 
 import (
 	"fmt"
 	"net/http"
 )
 
-// AppError represents a structured application error
-type AppError struct {
+// CustomError represents a structured application error
+type CustomError struct {
 	Code       string // Error code (e.g., "NOT_FOUND", "VALIDATION_ERROR")
 	Message    string // User-friendly error message
 	StatusCode *int   // HTTP status code (nullable, defaults based on code if nil)
 	Err        error  // Original error (nullable, for logging/debugging)
 }
 
-var _ error = (*AppError)(nil)
+var _ error = (*CustomError)(nil)
 
 // Error implements the error interface
-func (e *AppError) Error() string {
+func (e *CustomError) Error() string {
 	if e.Err != nil {
 		return fmt.Sprintf("[%s] %s: %v", e.Code, e.Message, e.Err)
 	}
@@ -24,12 +24,12 @@ func (e *AppError) Error() string {
 }
 
 // Unwrap returns the underlying error (for errors.Is and errors.As)
-func (e *AppError) Unwrap() error {
+func (e *CustomError) Unwrap() error {
 	return e.Err
 }
 
 // GetStatusCode returns the HTTP status code, with smart defaults if nil
-func (e *AppError) GetStatusCode() int {
+func (e *CustomError) GetStatusCode() int {
 	if e.StatusCode != nil {
 		return *e.StatusCode
 	}
@@ -38,8 +38,8 @@ func (e *AppError) GetStatusCode() int {
 }
 
 // WithError wraps an underlying error
-func (e *AppError) WithError(err error) *AppError {
-	return &AppError{
+func (e *CustomError) WithError(err error) *CustomError {
+	return &CustomError{
 		Code:       e.Code,
 		Message:    e.Message,
 		StatusCode: e.StatusCode,
@@ -47,29 +47,29 @@ func (e *AppError) WithError(err error) *AppError {
 	}
 }
 
-// New creates a new AppError
-func New(code, message string, statusCode int) *AppError {
+// New creates a new CustomError
+func New(code, message string, statusCode int) *CustomError {
 	status := statusCode
-	return &AppError{
+	return &CustomError{
 		Code:       code,
 		Message:    message,
 		StatusCode: &status,
 	}
 }
 
-// NewWithDefaults creates a new AppError with automatic status code
-func NewWithDefaults(code, message string) *AppError {
-	return &AppError{
+// NewWithDefaults creates a new CustomError with automatic status code
+func NewWithDefaults(code, message string) *CustomError {
+	return &CustomError{
 		Code:       code,
 		Message:    message,
 		StatusCode: nil, // Will use default based on code
 	}
 }
 
-// Wrap wraps an error with AppError
-func Wrap(err error, code, message string, statusCode int) *AppError {
+// Wrap wraps an error with CustomError
+func Wrap(err error, code, message string, statusCode int) *CustomError {
 	status := statusCode
-	return &AppError{
+	return &CustomError{
 		Code:       code,
 		Message:    message,
 		StatusCode: &status,

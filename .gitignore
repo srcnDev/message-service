@@ -8,6 +8,10 @@
 *.so
 *.dylib
 
+# Build output
+bin/
+!bin/.gitkeep
+
 # Test binary, built with `go test -c`
 *.test
 
@@ -25,7 +29,11 @@ go.work
 go.work.sum
 
 # env file
-# .env
+.env
+.env.local
+
+# Logs
+*.log
 
 # Editor/IDE
 # .idea/

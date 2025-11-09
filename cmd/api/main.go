@@ -2,24 +2,24 @@ package main
 
 import (
 	"context"
-	"log"
 	"os/signal"
 	"syscall"
 	"time"
 
 	"github.com/srcndev/message-service/config"
 	"github.com/srcndev/message-service/internal/app"
+	"github.com/srcndev/message-service/pkg/logger"
 )
 
 func main() {
 	cfg, err := config.NewConfig()
 	if err != nil {
-		log.Fatalf("config init failed: %v", err)
+		logger.Fatal("Config init failed: %v", err)
 	}
 
 	application, err := app.New(cfg)
 	if err != nil {
-		log.Fatalf("app init failed: %v", err)
+		logger.Fatal("App init failed: %v", err)
 	}
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
@@ -27,7 +27,7 @@ func main() {
 
 	go func() {
 		if runErr := application.Run(); runErr != nil {
-			log.Printf("server run error: %v", runErr)
+			logger.Error("Server run error: %v", runErr)
 			stop()
 		}
 	}()
@@ -38,6 +38,6 @@ func main() {
 	defer cancel()
 
 	if err := application.Shutdown(shutdownCtx); err != nil {
-		log.Fatalf("graceful shutdown failed: %v", err)
+		logger.Fatal("Graceful shutdown failed: %v", err)
 	}
 }

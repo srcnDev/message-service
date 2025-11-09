@@ -2,13 +2,13 @@ package app
 
 import (
 	"context"
-	"fmt"
-	"log"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/srcndev/message-service/config"
+	"github.com/srcndev/message-service/internal/apperror"
+	"github.com/srcndev/message-service/pkg/logger"
 )
 
 // App represents the application with all dependencies
@@ -23,7 +23,7 @@ func New(cfg *config.Config) (*App, error) {
 	// Create DI container
 	container, err := NewContainer(cfg)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create container: %w", err)
+		return nil, apperror.ErrContainerInitFailed.WithError(err)
 	}
 
 	app := &App{
@@ -47,12 +47,12 @@ func New(cfg *config.Config) (*App, error) {
 
 // Run starts the HTTP server
 func (a *App) Run() error {
-	log.Printf("Starting server on %s", a.server.Addr)
-	log.Printf("Health check: http://localhost%s/health", a.server.Addr)
-	log.Printf("API base URL: http://localhost%s/api/v1", a.server.Addr)
+	logger.Info("Starting server on %s", a.server.Addr)
+	logger.Info("Health check: http://localhost%s/health", a.server.Addr)
+	logger.Info("API base URL: http://localhost%s/api/v1", a.server.Addr)
 
 	if err := a.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		return fmt.Errorf("failed to start server: %w", err)
+		return apperror.ErrServerStartFailed.WithError(err)
 	}
 
 	return nil
@@ -60,18 +60,18 @@ func (a *App) Run() error {
 
 // Shutdown gracefully stops the application
 func (a *App) Shutdown(ctx context.Context) error {
-	log.Println("Shutting down server...")
+	logger.Info("Shutting down server...")
 
 	// Shutdown HTTP server
 	if err := a.server.Shutdown(ctx); err != nil {
-		return fmt.Errorf("server shutdown failed: %w", err)
+		return apperror.ErrServerStopFailed.WithError(err)
 	}
 
 	// Close container resources
 	if err := a.container.Close(); err != nil {
-		log.Printf("Warning: container close error: %v", err)
+		logger.Error("Container close error: %v", err)
 	}
 
-	log.Println("Server stopped gracefully")
+	logger.Info("Server stopped gracefully")
 	return nil
 }

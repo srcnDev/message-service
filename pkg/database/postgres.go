@@ -2,7 +2,6 @@ package database
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"gorm.io/driver/postgres"
@@ -10,6 +9,7 @@ import (
 	"gorm.io/gorm/logger"
 
 	"github.com/srcndev/message-service/config"
+	applogger "github.com/srcndev/message-service/pkg/logger"
 )
 
 // NewPostgresDB creates a new PostgreSQL database connection
@@ -30,12 +30,12 @@ func NewPostgresDB(cfg *config.Config) (*gorm.DB, error) {
 		},
 	})
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", errDatabaseConnectionFailed, err)
+		return nil, errDatabaseConnectionFailed.WithError(err)
 	}
 
 	sqlDB, err := db.DB()
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", errDatabaseInstanceFailed, err)
+		return nil, errDatabaseInstanceFailed.WithError(err)
 	}
 
 	sqlDB.SetMaxIdleConns(10)
@@ -43,9 +43,9 @@ func NewPostgresDB(cfg *config.Config) (*gorm.DB, error) {
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
 	if err := sqlDB.Ping(); err != nil {
-		return nil, fmt.Errorf("%w: %v", errDatabasePingFailed, err)
+		return nil, errDatabasePingFailed.WithError(err)
 	}
 
-	log.Println("Database connection established")
+	applogger.Info("Database connection established")
 	return db, nil
 }

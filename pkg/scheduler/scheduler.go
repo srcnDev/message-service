@@ -2,9 +2,10 @@ package scheduler
 
 import (
 	"context"
-	"log"
 	"sync"
 	"time"
+
+	"github.com/srcndev/message-service/pkg/logger"
 )
 
 // Scheduler defines the interface for a job scheduler
@@ -106,19 +107,19 @@ func (s *scheduler) IsRunning() bool {
 func (s *scheduler) run(ctx context.Context) {
 	defer close(s.stoppedCh)
 
-	log.Println("[Scheduler] Starting, executing job immediately...")
+	logger.Info("Scheduler starting, executing job immediately")
 	// Execute job immediately on start (for pending messages)
 	s.executeJob(ctx)
 
 	// Continue executing on interval
-	log.Printf("[Scheduler] Will run every %v\n", s.interval)
+	logger.Info("Scheduler will run every %v", s.interval)
 	for {
 		select {
 		case <-s.ticker.C:
-			log.Println("[Scheduler] Tick received, executing job...")
+			logger.Debug("Scheduler tick received, executing job")
 			s.executeJob(ctx)
 		case <-ctx.Done():
-			log.Println("[Scheduler] Context cancelled, stopping...")
+			logger.Info("Scheduler context cancelled, stopping")
 			return
 		}
 	}
@@ -128,11 +129,11 @@ func (s *scheduler) run(ctx context.Context) {
 func (s *scheduler) executeJob(ctx context.Context) {
 	defer func() {
 		if r := recover(); r != nil {
-			log.Printf("[Scheduler] Job panicked: %v\n", r)
+			logger.Error("Scheduler job panicked: %v", r)
 		}
 	}()
 
 	if err := s.job(ctx); err != nil {
-		log.Printf("[Scheduler] Job returned error: %v (will retry on next tick)\n", err)
+		logger.Error("Scheduler job returned error: %v (will retry on next tick)", err)
 	}
 }

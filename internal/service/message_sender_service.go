@@ -2,10 +2,10 @@ package service
 
 import (
 	"context"
-	"fmt"
-	"log"
 
+	"github.com/srcndev/message-service/internal/apperror"
 	"github.com/srcndev/message-service/internal/domain"
+	"github.com/srcndev/message-service/pkg/logger"
 	"github.com/srcndev/message-service/pkg/webhook"
 )
 
@@ -42,7 +42,7 @@ func (s *messageSenderService) SendPendingMessages(ctx context.Context) error {
 	// Get pending messages
 	messages, err := s.messageService.GetPendingMessages(ctx, s.batchSize)
 	if err != nil {
-		return fmt.Errorf("failed to get pending messages: %w", err)
+		return apperror.ErrMessageListFailed.WithError(err)
 	}
 
 	// No pending messages
@@ -51,12 +51,19 @@ func (s *messageSenderService) SendPendingMessages(ctx context.Context) error {
 	}
 
 	// Send each message
+	var sendErrors []error
 	for _, msg := range messages {
 		if err := s.sendMessage(ctx, msg); err != nil {
 			// Log error but continue with other messages
-			log.Printf("Failed to send message %d: %v\n", msg.ID, err)
+			logger.Error("Failed to send message %d: %v", msg.ID, err)
+			sendErrors = append(sendErrors, err)
 			continue
 		}
+	}
+
+	// If all messages failed, return error
+	if len(sendErrors) > 0 && len(sendErrors) == len(messages) {
+		return apperror.ErrMessageSendFailed
 	}
 
 	return nil
@@ -75,15 +82,18 @@ func (s *messageSenderService) sendMessage(ctx context.Context, msg *domain.Mess
 	if err != nil {
 		// Mark as failed
 		if markErr := s.messageService.SetFailed(ctx, msg.ID); markErr != nil {
-			log.Printf("Failed to mark message %d as failed: %v\n", msg.ID, markErr)
+			logger.Error("Failed to mark message %d as failed: %v", msg.ID, markErr)
+			// Return webhook error with both error details logged
+			return apperror.ErrWebhookCallFailed.WithError(err)
 		}
-		return fmt.Errorf("webhook send failed: %w", err)
+		return apperror.ErrWebhookCallFailed.WithError(err)
 	}
 
 	// Mark as sent with messageID from webhook
 	if err := s.messageService.SetSent(ctx, msg.ID, resp.MessageID); err != nil {
-		return fmt.Errorf("failed to mark message as sent: %w", err)
+		return apperror.ErrMarkSentFailed.WithError(err)
 	}
 
+	logger.Info("Message %d sent successfully (webhook messageId: %s)", msg.ID, resp.MessageID)
 	return nil
 }

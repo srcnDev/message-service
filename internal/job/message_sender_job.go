@@ -2,11 +2,11 @@ package job
 
 import (
 	"context"
-	"fmt"
-	"log"
 	"time"
 
+	"github.com/srcndev/message-service/internal/apperror"
 	"github.com/srcndev/message-service/internal/service"
+	"github.com/srcndev/message-service/pkg/logger"
 	"github.com/srcndev/message-service/pkg/scheduler"
 )
 
@@ -38,7 +38,7 @@ func NewMessageSenderJob(senderService service.MessageSenderService, interval ti
 	// Create scheduler
 	sch, err := scheduler.New(j.run, interval)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create scheduler: %w", err)
+		return nil, apperror.ErrSchedulerInitFailed.WithError(err)
 	}
 	j.scheduler = sch
 
@@ -47,27 +47,27 @@ func NewMessageSenderJob(senderService service.MessageSenderService, interval ti
 
 // run is the job function that gets executed by scheduler
 func (j *messageSenderJob) run(ctx context.Context) error {
-	log.Println("[MessageSenderJob] Starting message sending cycle...")
+	logger.Info("Starting message sending cycle")
 
 	err := j.senderService.SendPendingMessages(ctx)
 	if err != nil {
-		log.Printf("[MessageSenderJob] Error sending messages: %v\n", err)
+		logger.Error("Error sending messages: %v", err)
 		return err
 	}
 
-	log.Println("[MessageSenderJob] Message sending cycle completed")
+	logger.Info("Message sending cycle completed")
 	return nil
 }
 
 // Start starts the scheduled job
 func (j *messageSenderJob) Start(ctx context.Context) error {
-	log.Println("[MessageSenderJob] Starting scheduler...")
+	logger.Info("Starting message sender job")
 	return j.scheduler.Start(ctx)
 }
 
 // Stop stops the scheduled job
 func (j *messageSenderJob) Stop(ctx context.Context) error {
-	log.Println("[MessageSenderJob] Stopping scheduler...")
+	logger.Info("Stopping message sender job")
 	return j.scheduler.Stop(ctx)
 }
 

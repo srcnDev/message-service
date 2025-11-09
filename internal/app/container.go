@@ -1,7 +1,6 @@
 package app
 
 import (
-	"log"
 	"time"
 
 	"gorm.io/gorm"
@@ -14,6 +13,7 @@ import (
 	"github.com/srcndev/message-service/internal/service"
 	"github.com/srcndev/message-service/pkg/database"
 	"github.com/srcndev/message-service/pkg/health"
+	"github.com/srcndev/message-service/pkg/logger"
 	"github.com/srcndev/message-service/pkg/webhook"
 )
 
@@ -100,7 +100,7 @@ func (c *Container) setupServices() {
 		5*time.Second, // Every 5 seconds
 	)
 	if err != nil {
-		log.Fatalf("Failed to create message sender job: %v", err)
+		logger.Fatal("Failed to create message sender job: %v", err)
 	}
 	c.MessageSenderJob = messageSenderJob
 }
@@ -124,13 +124,13 @@ func (c *Container) Close() error {
 	if c.DB != nil {
 		sqlDB, err := c.DB.DB()
 		if err != nil {
-			log.Printf("Warning: failed to get database instance: %v", err)
+			logger.Error("Failed to get database instance: %v", err)
 			return nil
 		}
 		if err := sqlDB.Close(); err != nil {
-			log.Printf("Warning: failed to close database: %v", err)
+			logger.Error("Failed to close database: %v", err)
 		} else {
-			log.Println("Database connection closed")
+			logger.Info("Database connection closed")
 		}
 	}
 	return nil

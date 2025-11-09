@@ -1,7 +1,7 @@
 package app
 
 import (
-	"time"
+	"context"
 
 	"gorm.io/gorm"
 
@@ -91,13 +91,13 @@ func (c *Container) setupServices() {
 	c.MessageSenderService = service.NewMessageSenderService(
 		c.MessageService,
 		c.WebhookClient,
-		2, // Batch size: 2 messages per cycle
+		c.Config.MessageSender.BatchSize,
 	)
 
 	// Create scheduler job
 	messageSenderJob, err := job.NewMessageSenderJob(
 		c.MessageSenderService,
-		5*time.Second, // Every 5 seconds
+		c.Config.MessageSender.Interval,
 	)
 	if err != nil {
 		logger.Fatal("Failed to create message sender job: %v", err)
@@ -119,8 +119,32 @@ func (c *Container) migrate() error {
 	)
 }
 
+// StartJobs starts all background jobs
+func (c *Container) StartJobs() error {
+	logger.Info("Starting background jobs...")
+
+	// Use background context for the job lifecycle
+	ctx := context.Background()
+
+	if err := c.MessageSenderJob.Start(ctx); err != nil {
+		return err
+	}
+
+	logger.Info("Background jobs started successfully")
+	return nil
+}
+
 // Close gracefully closes all resources
 func (c *Container) Close() error {
+	// Stop message sender job first
+	if c.MessageSenderJob != nil && c.MessageSenderJob.IsRunning() {
+		logger.Info("Stopping background jobs...")
+		ctx := context.Background()
+		if err := c.MessageSenderJob.Stop(ctx); err != nil {
+			logger.Error("Failed to stop message sender job: %v", err)
+		}
+	}
+
 	if c.DB != nil {
 		sqlDB, err := c.DB.DB()
 		if err != nil {

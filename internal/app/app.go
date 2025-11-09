@@ -47,6 +47,11 @@ func New(cfg *config.Config) (*App, error) {
 
 // Run starts the HTTP server
 func (a *App) Run() error {
+	// Start background jobs before starting HTTP server
+	if err := a.container.StartJobs(); err != nil {
+		logger.Error("Failed to start background jobs: %v", err)
+	}
+
 	logger.Info("Starting server on %s", a.server.Addr)
 	logger.Info("Health check: http://localhost%s/health", a.server.Addr)
 	logger.Info("API base URL: http://localhost%s/api/v1", a.server.Addr)

@@ -16,4 +16,7 @@ var (
 
 	errWebhookURLEmpty     = customerror.NewWithDefaults("WEBHOOK_URL_EMPTY", "Webhook URL cannot be empty")
 	errWebhookAuthKeyEmpty = customerror.NewWithDefaults("WEBHOOK_AUTH_KEY_EMPTY", "Webhook auth key cannot be empty")
+
+	errSenderIntervalInvalid  = customerror.NewWithDefaults("SENDER_INTERVAL_INVALID", "Message sender interval must be greater than 0")
+	errSenderBatchSizeInvalid = customerror.NewWithDefaults("SENDER_BATCH_SIZE_INVALID", "Message sender batch size must be greater than 0")
 )

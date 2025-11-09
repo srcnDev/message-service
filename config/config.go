@@ -13,8 +13,9 @@ type Config struct {
 	AppPort string
 	AppURL  string
 
-	Database DatabaseConfig
-	Webhook  WebhookConfig
+	Database      DatabaseConfig
+	Webhook       WebhookConfig
+	MessageSender MessageSenderConfig
 }
 
 // DatabaseConfig holds database connection settings
@@ -32,6 +33,12 @@ type WebhookConfig struct {
 	AuthKey    string
 	Timeout    time.Duration
 	MaxRetries int
+}
+
+// MessageSenderConfig holds message sender job settings
+type MessageSenderConfig struct {
+	Interval  time.Duration // How often to check for pending messages
+	BatchSize int           // Number of messages to send per cycle
 }
 
 func NewConfig() (*Config, error) {
@@ -54,6 +61,22 @@ func NewConfig() (*Config, error) {
 		}
 	}
 
+	// Message sender interval (default: 120 seconds = 2 minutes as per case study)
+	senderInterval := 120 * time.Second
+	if intervalStr := getEnv("MESSAGE_SENDER_INTERVAL", ""); intervalStr != "" {
+		if intervalSec, err := strconv.Atoi(intervalStr); err == nil && intervalSec > 0 {
+			senderInterval = time.Duration(intervalSec) * time.Second
+		}
+	}
+
+	// Message sender batch size (default: 2 messages per cycle as per case study)
+	senderBatchSize := 2
+	if batchStr := getEnv("MESSAGE_SENDER_BATCH_SIZE", ""); batchStr != "" {
+		if batch, err := strconv.Atoi(batchStr); err == nil && batch > 0 {
+			senderBatchSize = batch
+		}
+	}
+
 	cfg := &Config{
 		AppPort: getEnv("APP_PORT", "8080"),
 		AppURL:  getEnv("APP_URL", "http://localhost:8080"),
@@ -71,6 +94,11 @@ func NewConfig() (*Config, error) {
 			AuthKey:    getEnv("WEBHOOK_AUTH_KEY", "INS.me1x9uMcyYGlhKKQVPoc.bO3j9aZwRTOcA2Ywo"),
 			Timeout:    webhookTimeout,
 			MaxRetries: webhookMaxRetries,
+		},
+
+		MessageSender: MessageSenderConfig{
+			Interval:  senderInterval,
+			BatchSize: senderBatchSize,
 		},
 	}
 
@@ -108,6 +136,12 @@ func (c *Config) validate() error {
 	}
 	if c.Webhook.AuthKey == "" {
 		return errWebhookAuthKeyEmpty
+	}
+	if c.MessageSender.Interval <= 0 {
+		return errSenderIntervalInvalid
+	}
+	if c.MessageSender.BatchSize <= 0 {
+		return errSenderBatchSizeInvalid
 	}
 	return nil
 }

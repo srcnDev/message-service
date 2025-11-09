@@ -7,6 +7,7 @@ import (
 
 	"github.com/srcndev/message-service/config"
 	"github.com/srcndev/message-service/internal/health"
+	"github.com/srcndev/message-service/internal/message"
 	"github.com/srcndev/message-service/pkg/database"
 )
 
@@ -16,12 +17,15 @@ type Container struct {
 	DB     *gorm.DB
 
 	// Repositories
+	MessageRepo message.Repository
 
 	// Services
-	HealthService health.Service
+	HealthService  health.Service
+	MessageService message.Service
 
 	// Handlers
-	HealthHandler health.Handler
+	HealthHandler  health.Handler
+	MessageHandler message.Handler
 }
 
 // NewContainer creates and wires all dependencies
@@ -42,26 +46,36 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 	container.setupServices()
 	container.setupHandlers()
 
+	// Run migrations
+	if err := container.migrate(); err != nil {
+		return nil, err
+	}
+
 	return container, nil
 }
 
 // setupRepositories initializes all repositories
 func (c *Container) setupRepositories() {
-	// Message repository
+	c.MessageRepo = message.NewRepository(c.DB)
 }
 
 // setupServices initializes all services
 func (c *Container) setupServices() {
-	// Health service
 	c.HealthService = health.NewService()
-
+	c.MessageService = message.NewService(c.MessageRepo)
 }
 
 // setupHandlers initializes all HTTP handlers
 func (c *Container) setupHandlers() {
-	// Health handler
 	c.HealthHandler = health.NewHandler(c.HealthService)
+	c.MessageHandler = message.NewHandler(c.MessageService)
+}
 
+// migrate runs database migrations
+func (c *Container) migrate() error {
+	return c.DB.AutoMigrate(
+		&message.Message{},
+	)
 }
 
 // Close gracefully closes all resources

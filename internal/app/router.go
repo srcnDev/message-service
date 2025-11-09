@@ -15,5 +15,11 @@ func (a *App) setupRouter() {
 	// Health check route (outside versioned API)
 	a.container.HealthHandler.RegisterRoutes(&router.RouterGroup)
 
+	// API v1 routes
+	v1 := router.Group("/api/v1")
+	{
+		a.container.MessageHandler.RegisterRoutes(v1)
+	}
+
 	a.router = router
 }

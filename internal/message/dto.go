@@ -1,0 +1,42 @@
+package message
+
+import "time"
+
+// CreateMessageRequest represents the request payload for creating a message
+type CreateMessageRequest struct {
+	PhoneNumber string `json:"phoneNumber" binding:"required,e164" example:"+905551111111"`
+	Content     string `json:"content" binding:"required,max=500" example:"Hello from Insider!"`
+}
+
+// UpdateMessageRequest represents the request payload for updating a message
+type UpdateMessageRequest struct {
+	PhoneNumber *string        `json:"phoneNumber,omitempty" binding:"omitempty,e164"`
+	Content     *string        `json:"content,omitempty" binding:"omitempty,max=500"`
+	Status      *MessageStatus `json:"status,omitempty" binding:"omitempty,oneof=pending sent failed"`
+}
+
+// MessageResponse represents the response payload for a message
+type MessageResponse struct {
+	ID          uint          `json:"id" example:"1"`
+	PhoneNumber string        `json:"phoneNumber" example:"+905551111111"`
+	Content     string        `json:"content" example:"Hello from Insider!"`
+	Status      MessageStatus `json:"status" example:"pending"`
+	MessageID   *string       `json:"messageId,omitempty" example:"67f2f8a8-ea58-4ed0-a6f9-ff217df4d849"`
+	SentAt      *time.Time    `json:"sentAt,omitempty" example:"2025-11-09T10:30:00Z"`
+	CreatedAt   time.Time     `json:"createdAt" example:"2025-11-09T10:00:00Z"`
+	UpdatedAt   time.Time     `json:"updatedAt" example:"2025-11-09T10:00:00Z"`
+}
+
+// ToResponse converts domain model to response DTO
+func ToResponse(m *Message) MessageResponse {
+	return MessageResponse{
+		ID:          m.ID,
+		PhoneNumber: m.PhoneNumber,
+		Content:     m.Content,
+		Status:      m.Status,
+		MessageID:   m.MessageID,
+		SentAt:      m.SentAt,
+		CreatedAt:   m.CreatedAt,
+		UpdatedAt:   m.UpdatedAt,
+	}
+}

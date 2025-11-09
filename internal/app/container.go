@@ -7,8 +7,11 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/srcndev/message-service/config"
-	"github.com/srcndev/message-service/internal/message"
+	"github.com/srcndev/message-service/internal/domain"
+	"github.com/srcndev/message-service/internal/handler"
 	"github.com/srcndev/message-service/internal/messagesender"
+	"github.com/srcndev/message-service/internal/repository"
+	"github.com/srcndev/message-service/internal/service"
 	"github.com/srcndev/message-service/pkg/database"
 	"github.com/srcndev/message-service/pkg/health"
 	"github.com/srcndev/message-service/pkg/webhook"
@@ -20,11 +23,11 @@ type Container struct {
 	DB     *gorm.DB
 
 	// Repositories
-	MessageRepo message.Repository
+	MessageRepo repository.MessageRepository
 
 	// Services
 	HealthService        health.Service
-	MessageService       message.Service
+	MessageService       service.MessageService
 	MessageSenderService messagesender.Service
 
 	// Jobs
@@ -32,7 +35,7 @@ type Container struct {
 
 	// Handlers
 	HealthHandler        health.Handler
-	MessageHandler       message.Handler
+	MessageHandler       handler.MessageHandler
 	MessageSenderHandler messagesender.Handler
 
 	// Clients
@@ -79,13 +82,13 @@ func (c *Container) setupClients() {
 
 // setupRepositories initializes all repositories
 func (c *Container) setupRepositories() {
-	c.MessageRepo = message.NewRepository(c.DB)
+	c.MessageRepo = repository.NewMessageRepository(c.DB)
 }
 
 // setupServices initializes all services
 func (c *Container) setupServices() {
 	c.HealthService = health.NewService()
-	c.MessageService = message.NewService(c.MessageRepo)
+	c.MessageService = service.NewMessageService(c.MessageRepo)
 	c.MessageSenderService = messagesender.NewService(
 		c.MessageService,
 		c.WebhookClient,
@@ -108,14 +111,14 @@ func (c *Container) setupJobs() {
 // setupHandlers initializes all HTTP handlers
 func (c *Container) setupHandlers() {
 	c.HealthHandler = health.NewHandler(c.HealthService)
-	c.MessageHandler = message.NewHandler(c.MessageService)
+	c.MessageHandler = handler.NewMessageHandler(c.MessageService)
 	c.MessageSenderHandler = messagesender.NewHandler(c.MessageSenderJob)
 }
 
 // migrate runs database migrations
 func (c *Container) migrate() error {
 	return c.DB.AutoMigrate(
-		&message.Message{},
+		&domain.Message{},
 	)
 }
 

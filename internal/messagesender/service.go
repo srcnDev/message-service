@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/srcndev/message-service/internal/message"
+	"github.com/srcndev/message-service/internal/domain"
+	"github.com/srcndev/message-service/internal/service"
 	"github.com/srcndev/message-service/pkg/webhook"
 )
 
@@ -14,22 +15,22 @@ type Service interface {
 	SendPendingMessages(ctx context.Context) error
 }
 
-type service struct {
-	messageService message.Service
+type senderService struct {
+	messageService service.MessageService
 	webhookClient  webhook.Client
 	batchSize      int
 }
 
 // Compile-time interface compliance check
-var _ Service = (*service)(nil)
+var _ Service = (*senderService)(nil)
 
 // NewService creates a new message sender service
-func NewService(messageService message.Service, webhookClient webhook.Client, batchSize int) Service {
+func NewService(messageService service.MessageService, webhookClient webhook.Client, batchSize int) Service {
 	if batchSize <= 0 {
 		batchSize = 2 // Default batch size from case study
 	}
 
-	return &service{
+	return &senderService{
 		messageService: messageService,
 		webhookClient:  webhookClient,
 		batchSize:      batchSize,
@@ -37,7 +38,7 @@ func NewService(messageService message.Service, webhookClient webhook.Client, ba
 }
 
 // SendPendingMessages fetches and sends pending messages in batches
-func (s *service) SendPendingMessages(ctx context.Context) error {
+func (s *senderService) SendPendingMessages(ctx context.Context) error {
 	// Get pending messages
 	messages, err := s.messageService.GetPendingMessages(ctx, s.batchSize)
 	if err != nil {
@@ -62,7 +63,7 @@ func (s *service) SendPendingMessages(ctx context.Context) error {
 }
 
 // sendMessage sends a single message via webhook
-func (s *service) sendMessage(ctx context.Context, msg *message.Message) error {
+func (s *senderService) sendMessage(ctx context.Context, msg *domain.Message) error {
 	// Prepare webhook request
 	req := &webhook.SendMessageRequest{
 		To:      msg.PhoneNumber,

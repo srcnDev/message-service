@@ -1,4 +1,4 @@
-package message
+package dto
 
 import (
 	"net/http"

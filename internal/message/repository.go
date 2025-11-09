@@ -11,6 +11,7 @@ type Repository interface {
 	Create(ctx context.Context, message *Message) error
 	GetByID(ctx context.Context, id uint) (*Message, error)
 	List(ctx context.Context, limit, offset int) ([]*Message, error)
+	GetPendingMessages(ctx context.Context, limit int) ([]*Message, error)
 	Update(ctx context.Context, message *Message) error
 	Delete(ctx context.Context, id uint) error
 }
@@ -49,6 +50,17 @@ func (r *repository) List(ctx context.Context, limit, offset int) ([]*Message, e
 		Limit(limit).
 		Offset(offset).
 		Order("created_at DESC").
+		Find(&messages).Error
+	return messages, err
+}
+
+// GetPendingMessages retrieves pending messages with limit
+func (r *repository) GetPendingMessages(ctx context.Context, limit int) ([]*Message, error) {
+	var messages []*Message
+	err := r.db.WithContext(ctx).
+		Where("status = ?", StatusPending).
+		Order("created_at ASC").
+		Limit(limit).
 		Find(&messages).Error
 	return messages, err
 }

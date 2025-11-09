@@ -3,6 +3,7 @@ package message
 import (
 	"context"
 	"errors"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -12,6 +13,9 @@ type Service interface {
 	Create(ctx context.Context, req CreateMessageRequest) (*Message, error)
 	GetByID(ctx context.Context, id uint) (*Message, error)
 	List(ctx context.Context, limit, offset int) ([]*Message, error)
+	GetPendingMessages(ctx context.Context, limit int) ([]*Message, error)
+	SetSent(ctx context.Context, id uint, messageID string) error
+	SetFailed(ctx context.Context, id uint) error
 	Update(ctx context.Context, id uint, req UpdateMessageRequest) (*Message, error)
 	Delete(ctx context.Context, id uint) error
 }
@@ -66,6 +70,56 @@ func (s *service) List(ctx context.Context, limit, offset int) ([]*Message, erro
 	}
 
 	return messages, nil
+}
+
+// GetPendingMessages retrieves pending messages
+func (s *service) GetPendingMessages(ctx context.Context, limit int) ([]*Message, error) {
+	messages, err := s.repo.GetPendingMessages(ctx, limit)
+	if err != nil {
+		return nil, ErrMessageListFailed.WithError(err)
+	}
+	return messages, nil
+}
+
+// SetSent marks a message as sent
+func (s *service) SetSent(ctx context.Context, id uint, messageID string) error {
+	message, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return ErrMessageNotFound
+		}
+		return ErrMessageUpdateFailed.WithError(err)
+	}
+
+	now := time.Now()
+	message.Status = StatusSent
+	message.MessageID = &messageID
+	message.SentAt = &now
+
+	if err := s.repo.Update(ctx, message); err != nil {
+		return ErrMessageUpdateFailed.WithError(err)
+	}
+
+	return nil
+}
+
+// SetFailed marks a message as failed
+func (s *service) SetFailed(ctx context.Context, id uint) error {
+	message, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return ErrMessageNotFound
+		}
+		return ErrMessageUpdateFailed.WithError(err)
+	}
+
+	message.Status = StatusFailed
+
+	if err := s.repo.Update(ctx, message); err != nil {
+		return ErrMessageUpdateFailed.WithError(err)
+	}
+
+	return nil
 }
 
 // Update updates an existing message

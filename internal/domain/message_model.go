@@ -12,7 +12,6 @@ type MessageStatus string
 const (
 	StatusPending MessageStatus = "pending"
 	StatusSent    MessageStatus = "sent"
-	StatusFailed  MessageStatus = "failed"
 )
 
 // Message represents a message to be sent

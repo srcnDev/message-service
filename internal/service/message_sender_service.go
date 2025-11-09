@@ -92,12 +92,8 @@ func (s *messageSenderService) sendMessage(ctx context.Context, msg *domain.Mess
 	// Send via webhook
 	resp, err := s.webhookClient.SendMessage(ctx, req)
 	if err != nil {
-		// Mark as failed
-		if markErr := s.messageService.SetFailed(ctx, msg.ID); markErr != nil {
-			logger.Error("Failed to mark message %d as failed: %v", msg.ID, markErr)
-			// Return webhook error with both error details logged
-			return apperror.ErrWebhookCallFailed.WithError(err)
-		}
+		// Don't mark as failed - leave it pending for retry in next cycle
+		logger.Error("Failed to send message %d: %v (will retry in next cycle)", msg.ID, err)
 		return apperror.ErrWebhookCallFailed.WithError(err)
 	}
 

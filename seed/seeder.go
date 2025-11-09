@@ -53,12 +53,7 @@ func (s *Seeder) Run() error {
 		return fmt.Errorf("failed to seed sent messages: %w", err)
 	}
 
-	// Seed failed messages
-	if err := s.seedFailedMessages(ctx, 2); err != nil {
-		return fmt.Errorf("failed to seed failed messages: %w", err)
-	}
-
-	logger.Info("Database seeded successfully: 20 pending, 5 sent, 2 failed")
+	logger.Info("Database seeded successfully: 20 pending, 5 sent")
 	return nil
 }
 
@@ -133,21 +128,6 @@ func (s *Seeder) seedSentMessages(ctx context.Context, count int) error {
 			Status:      domain.StatusSent,
 			MessageID:   &messageID,
 			SentAt:      &sentAt,
-		}
-	}
-
-	return s.db.WithContext(ctx).Create(&messages).Error
-}
-
-// seedFailedMessages creates fake failed messages
-func (s *Seeder) seedFailedMessages(ctx context.Context, count int) error {
-	messages := make([]domain.Message, count)
-
-	for i := 0; i < count; i++ {
-		messages[i] = domain.Message{
-			PhoneNumber: s.generateTurkishPhone(),
-			Content:     fmt.Sprintf("Failed message: %s", s.faker.Lorem().Sentence(8)),
-			Status:      domain.StatusFailed,
 		}
 	}
 

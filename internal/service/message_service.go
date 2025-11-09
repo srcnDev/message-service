@@ -19,7 +19,6 @@ type MessageService interface {
 	List(ctx context.Context, limit, offset int) ([]*domain.Message, error)
 	GetPendingMessages(ctx context.Context, limit int) ([]*domain.Message, error)
 	SetSent(ctx context.Context, id uint, messageID string) error
-	SetFailed(ctx context.Context, id uint) error
 	Update(ctx context.Context, id uint, req dto.UpdateMessageRequest) (*domain.Message, error)
 	Delete(ctx context.Context, id uint) error
 }
@@ -99,25 +98,6 @@ func (s *messageService) SetSent(ctx context.Context, id uint, messageID string)
 	message.Status = domain.StatusSent
 	message.MessageID = &messageID
 	message.SentAt = &now
-
-	if err := s.repo.Update(ctx, message); err != nil {
-		return apperror.ErrMessageUpdateFailed.WithError(err)
-	}
-
-	return nil
-}
-
-// SetFailed marks a message as failed
-func (s *messageService) SetFailed(ctx context.Context, id uint) error {
-	message, err := s.repo.GetByID(ctx, id)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return apperror.ErrMessageNotFound
-		}
-		return apperror.ErrMessageUpdateFailed.WithError(err)
-	}
-
-	message.Status = domain.StatusFailed
 
 	if err := s.repo.Update(ctx, message); err != nil {
 		return apperror.ErrMessageUpdateFailed.WithError(err)

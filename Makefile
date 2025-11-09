@@ -1,5 +1,9 @@
 # Simple Makefile for Go project
 
+# Binary names
+BINARY_NAME=message-service
+MIGRATE_BINARY=migrate
+
 # Generate Swagger documentation
 swag:
 	@echo "Generating Swagger docs..."
@@ -7,23 +11,23 @@ swag:
 
 # Build the application
 build:
-	@echo "Building..."
-	@go build -o bin/message-service.exe cmd/api/main.go
+	@echo "Building application..."
+	@go build -o bin/$(BINARY_NAME) ./cmd/api
 
 # Build migration tool
 build-migrate:
 	@echo "Building migration tool..."
-	@go build -o bin/migrate.exe cmd/migrate/main.go
+	@go build -o bin/$(MIGRATE_BINARY) ./cmd/migrate
 
 # Run migrations only
 migrate: build-migrate
 	@echo "Running migrations..."
-	@./bin/migrate.exe
+	@./bin/$(MIGRATE_BINARY)
 
 # Run migrations and seed data
 migrate-seed: build-migrate
 	@echo "Running migrations and seeding..."
-	@./bin/migrate.exe -seed
+	@./bin/$(MIGRATE_BINARY) -seed
 
 # Run the application
 run:

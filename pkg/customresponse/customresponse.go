@@ -1,12 +1,12 @@
-package response
+package customresponse
 
 import "github.com/gin-gonic/gin"
 
-// Response represents a standardized API response
-type Response struct {
-	Success bool        `json:"success"`
-	Data    interface{} `json:"data,omitempty"`
-	Error   *ErrorInfo  `json:"error,omitempty"`
+// CustomResponse represents a standardized API response
+type CustomResponse[T any] struct {
+	Success bool       `json:"success"`
+	Data    T          `json:"data,omitempty"`
+	Error   *ErrorInfo `json:"error,omitempty"`
 }
 
 // ErrorInfo represents error details
@@ -16,8 +16,8 @@ type ErrorInfo struct {
 }
 
 // Success sends a successful response
-func Success(c *gin.Context, statusCode int, data interface{}) {
-	c.JSON(statusCode, Response{
+func Success[T any](c *gin.Context, statusCode int, data T) {
+	c.JSON(statusCode, CustomResponse[T]{
 		Success: true,
 		Data:    data,
 	})
@@ -25,7 +25,7 @@ func Success(c *gin.Context, statusCode int, data interface{}) {
 
 // Error sends an error response
 func Error(c *gin.Context, statusCode int, code, message string) {
-	c.JSON(statusCode, Response{
+	c.JSON(statusCode, CustomResponse[any]{
 		Success: false,
 		Error: &ErrorInfo{
 			Code:    code,

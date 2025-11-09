@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/srcndev/message-service/pkg/customerror"
-	"github.com/srcndev/message-service/pkg/response"
+	"github.com/srcndev/message-service/pkg/customresponse"
 )
 
 // ErrorHandler is a middleware that handles errors from handlers
@@ -19,12 +19,12 @@ func ErrorHandler() gin.HandlerFunc {
 
 			var appErr *customerror.CustomError
 			if errors.As(err, &appErr) {
-				response.Error(c, appErr.GetStatusCode(), appErr.Code, appErr.Message)
+				customresponse.Error(c, appErr.GetStatusCode(), appErr.Code, appErr.Message)
 				return
 			}
 
 			// Fallback for unknown errors
-			response.Error(c, 500, "INTERNAL_ERROR", "Internal server error")
+			customresponse.Error(c, 500, "INTERNAL_ERROR", "Internal server error")
 		}
 	}
 }

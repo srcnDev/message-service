@@ -7,10 +7,10 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/srcndev/message-service/config"
-	"github.com/srcndev/message-service/internal/health"
 	"github.com/srcndev/message-service/internal/message"
 	"github.com/srcndev/message-service/internal/messagesender"
 	"github.com/srcndev/message-service/pkg/database"
+	"github.com/srcndev/message-service/pkg/health"
 	"github.com/srcndev/message-service/pkg/webhook"
 )
 

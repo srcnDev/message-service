@@ -11,6 +11,29 @@ import (
 	"github.com/srcndev/message-service/pkg/logger"
 )
 
+// @title           Message Service API
+// @version         1.0
+
+// @contact.name   Sercan Yilmaz
+// @contact.email  sercanyilmaz.dev@gmail.com
+
+// @license.name  MIT
+// @license.url   https://opensource.org/licenses/MIT
+
+// @host      localhost:8080
+// @BasePath  /api/v1
+
+// @schemes http https
+
+// @tag.name messages
+// @tag.description Message management operations
+
+// @tag.name sender
+// @tag.description Message sender job control operations
+
+// @tag.name health
+// @tag.description Health check endpoint
+
 func main() {
 	cfg, err := config.NewConfig()
 	if err != nil {

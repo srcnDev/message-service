@@ -42,6 +42,16 @@ func (h *senderHandler) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
+// Start godoc
+// @Summary      Start message sender
+// @Description  Start the message sender job manually
+// @Tags         sender
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  customresponse.CustomResponse{data=map[string]string}
+// @Failure      400  {object}  customresponse.CustomResponse
+// @Failure      500  {object}  customresponse.CustomResponse
+// @Router       /sender/start [post]
 func (h *senderHandler) Start(c *gin.Context) {
 	if err := h.messageSenderJob.Start(c.Request.Context()); err != nil {
 		if customErr, ok := err.(*customerror.CustomError); ok {
@@ -55,6 +65,16 @@ func (h *senderHandler) Start(c *gin.Context) {
 	customresponse.Success(c, http.StatusOK, gin.H{"message": "Message sender started"})
 }
 
+// Stop godoc
+// @Summary      Stop message sender
+// @Description  Stop the message sender job manually
+// @Tags         sender
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  customresponse.CustomResponse{data=map[string]string}
+// @Failure      400  {object}  customresponse.CustomResponse
+// @Failure      500  {object}  customresponse.CustomResponse
+// @Router       /sender/stop [post]
 func (h *senderHandler) Stop(c *gin.Context) {
 	if err := h.messageSenderJob.Stop(c.Request.Context()); err != nil {
 		if customErr, ok := err.(*customerror.CustomError); ok {
@@ -68,6 +88,14 @@ func (h *senderHandler) Stop(c *gin.Context) {
 	customresponse.Success(c, http.StatusOK, gin.H{"message": "Message sender stopped"})
 }
 
+// Status godoc
+// @Summary      Get sender status
+// @Description  Check if the message sender job is running
+// @Tags         sender
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  customresponse.CustomResponse{data=map[string]bool}
+// @Router       /sender/status [get]
 func (h *senderHandler) Status(c *gin.Context) {
 	customresponse.Success(c, http.StatusOK, gin.H{
 		"running": h.messageSenderJob.IsRunning(),

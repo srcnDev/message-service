@@ -9,7 +9,7 @@ import (
 // CreateMessageRequest represents the request payload for creating a message
 type CreateMessageRequest struct {
 	PhoneNumber string `json:"phoneNumber" binding:"required,e164" example:"+905551111111"`
-	Content     string `json:"content" binding:"required,max=500" example:"Hello from Insider!"`
+	Content     string `json:"content" binding:"required,max=500" example:"Hello"`
 }
 
 // UpdateMessageRequest represents the request payload for updating a message
@@ -23,7 +23,7 @@ type UpdateMessageRequest struct {
 type MessageResponse struct {
 	ID          uint                 `json:"id" example:"1"`
 	PhoneNumber string               `json:"phoneNumber" example:"+905551111111"`
-	Content     string               `json:"content" example:"Hello from Insider!"`
+	Content     string               `json:"content" example:"Hello"`
 	Status      domain.MessageStatus `json:"status" example:"pending"`
 	MessageID   *string              `json:"messageId,omitempty" example:"67f2f8a8-ea58-4ed0-a6f9-ff217df4d849"`
 	SentAt      *time.Time           `json:"sentAt,omitempty" example:"2025-11-09T10:30:00Z"`

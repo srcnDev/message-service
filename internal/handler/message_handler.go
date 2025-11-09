@@ -47,6 +47,17 @@ func (h *messageHandler) RegisterRoutes(router *gin.RouterGroup) {
 	}
 }
 
+// Create godoc
+// @Summary      Create a new message
+// @Description  Create a new message to be sent via webhook
+// @Tags         messages
+// @Accept       json
+// @Produce      json
+// @Param        message  body      dto.CreateMessageRequest  true  "Message details"
+// @Success      201      {object}  customresponse.CustomResponse{data=dto.MessageResponse}
+// @Failure      400      {object}  customresponse.CustomResponse
+// @Failure      500      {object}  customresponse.CustomResponse
+// @Router       /messages [post]
 func (h *messageHandler) Create(c *gin.Context) {
 	var req dto.CreateMessageRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -63,6 +74,18 @@ func (h *messageHandler) Create(c *gin.Context) {
 	customresponse.Success(c, http.StatusCreated, dto.ToResponse(message))
 }
 
+// GetByID godoc
+// @Summary      Get message by ID
+// @Description  Get a single message by its ID
+// @Tags         messages
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "Message ID"
+// @Success      200  {object}  customresponse.CustomResponse{data=dto.MessageResponse}
+// @Failure      400  {object}  customresponse.CustomResponse
+// @Failure      404  {object}  customresponse.CustomResponse
+// @Failure      500  {object}  customresponse.CustomResponse
+// @Router       /messages/{id} [get]
 func (h *messageHandler) GetByID(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -79,6 +102,17 @@ func (h *messageHandler) GetByID(c *gin.Context) {
 	customresponse.Success(c, http.StatusOK, dto.ToResponse(message))
 }
 
+// List godoc
+// @Summary      List messages
+// @Description  Get a list of messages with pagination
+// @Tags         messages
+// @Accept       json
+// @Produce      json
+// @Param        limit   query     int  false  "Limit"   default(10)
+// @Param        offset  query     int  false  "Offset"  default(0)
+// @Success      200     {object}  customresponse.CustomResponse{data=[]dto.MessageResponse}
+// @Failure      500     {object}  customresponse.CustomResponse
+// @Router       /messages [get]
 func (h *messageHandler) List(c *gin.Context) {
 	limit := 10
 	offset := 0
@@ -109,6 +143,19 @@ func (h *messageHandler) List(c *gin.Context) {
 	customresponse.Success(c, http.StatusOK, responses)
 }
 
+// Update godoc
+// @Summary      Update message
+// @Description  Update an existing message by ID
+// @Tags         messages
+// @Accept       json
+// @Produce      json
+// @Param        id       path      int                       true  "Message ID"
+// @Param        message  body      dto.UpdateMessageRequest  true  "Message details"
+// @Success      200      {object}  customresponse.CustomResponse{data=dto.MessageResponse}
+// @Failure      400      {object}  customresponse.CustomResponse
+// @Failure      404      {object}  customresponse.CustomResponse
+// @Failure      500      {object}  customresponse.CustomResponse
+// @Router       /messages/{id} [put]
 func (h *messageHandler) Update(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -131,6 +178,18 @@ func (h *messageHandler) Update(c *gin.Context) {
 	customresponse.Success(c, http.StatusOK, dto.ToResponse(message))
 }
 
+// Delete godoc
+// @Summary      Delete message
+// @Description  Soft delete a message by ID
+// @Tags         messages
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "Message ID"
+// @Success      204  {object}  customresponse.CustomResponse
+// @Failure      400  {object}  customresponse.CustomResponse
+// @Failure      404  {object}  customresponse.CustomResponse
+// @Failure      500  {object}  customresponse.CustomResponse
+// @Router       /messages/{id} [delete]
 func (h *messageHandler) Delete(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {

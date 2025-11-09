@@ -1,5 +1,10 @@
 # Simple Makefile for Go project
 
+# Generate Swagger documentation
+swag:
+	@echo "Generating Swagger docs..."
+	@swag init -g cmd/api/main.go -o docs --parseDependency --parseInternal
+
 # Build the application
 build:
 	@echo "Building..."
@@ -25,4 +30,4 @@ install:
 	@go mod download
 	@go mod tidy
 
-.PHONY: build run test clean install
+.PHONY: build run test clean install swag

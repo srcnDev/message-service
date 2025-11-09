@@ -78,8 +78,8 @@ func NewConfig() (*Config, error) {
 	}
 
 	cfg := &Config{
-		AppPort: getEnv("APP_PORT", "8080"),
-		AppURL:  getEnv("APP_URL", "http://localhost:8080"),
+		AppPort: getEnv("APP_PORT", "8000"),
+		AppURL:  getEnv("APP_URL", "http://localhost:8000"),
 
 		Database: DatabaseConfig{
 			Host:     getEnv("POSTGRES_DB_HOST", "localhost"),

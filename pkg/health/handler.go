@@ -30,7 +30,14 @@ func (h *handler) RegisterRoutes(r *gin.RouterGroup) {
 	r.GET("/health", h.Check)
 }
 
-// Check handles GET /health endpoint
+// Check godoc
+// @Summary      Health check
+// @Description  Check if the service is healthy
+// @Tags         health
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  health.Status
+// @Router       /health [get]
 func (h *handler) Check(c *gin.Context) {
 	status := h.service.GetStatus()
 	c.JSON(200, status)

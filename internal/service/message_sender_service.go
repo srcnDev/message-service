@@ -1,36 +1,36 @@
-package messagesender
+package service
 
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/srcndev/message-service/internal/domain"
-	"github.com/srcndev/message-service/internal/service"
 	"github.com/srcndev/message-service/pkg/webhook"
 )
 
-// Service defines the message sender service interface
-type Service interface {
+// MessageSenderService defines the message sender service interface
+type MessageSenderService interface {
 	// SendPendingMessages fetches and sends pending messages
 	SendPendingMessages(ctx context.Context) error
 }
 
-type senderService struct {
-	messageService service.MessageService
+type messageSenderService struct {
+	messageService MessageService
 	webhookClient  webhook.Client
 	batchSize      int
 }
 
 // Compile-time interface compliance check
-var _ Service = (*senderService)(nil)
+var _ MessageSenderService = (*messageSenderService)(nil)
 
-// NewService creates a new message sender service
-func NewService(messageService service.MessageService, webhookClient webhook.Client, batchSize int) Service {
+// NewMessageSenderService creates a new message sender service
+func NewMessageSenderService(messageService MessageService, webhookClient webhook.Client, batchSize int) MessageSenderService {
 	if batchSize <= 0 {
 		batchSize = 2 // Default batch size from case study
 	}
 
-	return &senderService{
+	return &messageSenderService{
 		messageService: messageService,
 		webhookClient:  webhookClient,
 		batchSize:      batchSize,
@@ -38,7 +38,7 @@ func NewService(messageService service.MessageService, webhookClient webhook.Cli
 }
 
 // SendPendingMessages fetches and sends pending messages in batches
-func (s *senderService) SendPendingMessages(ctx context.Context) error {
+func (s *messageSenderService) SendPendingMessages(ctx context.Context) error {
 	// Get pending messages
 	messages, err := s.messageService.GetPendingMessages(ctx, s.batchSize)
 	if err != nil {
@@ -54,7 +54,7 @@ func (s *senderService) SendPendingMessages(ctx context.Context) error {
 	for _, msg := range messages {
 		if err := s.sendMessage(ctx, msg); err != nil {
 			// Log error but continue with other messages
-			fmt.Printf("Failed to send message %d: %v\n", msg.ID, err)
+			log.Printf("Failed to send message %d: %v\n", msg.ID, err)
 			continue
 		}
 	}
@@ -63,7 +63,7 @@ func (s *senderService) SendPendingMessages(ctx context.Context) error {
 }
 
 // sendMessage sends a single message via webhook
-func (s *senderService) sendMessage(ctx context.Context, msg *domain.Message) error {
+func (s *messageSenderService) sendMessage(ctx context.Context, msg *domain.Message) error {
 	// Prepare webhook request
 	req := &webhook.SendMessageRequest{
 		To:      msg.PhoneNumber,
@@ -75,7 +75,7 @@ func (s *senderService) sendMessage(ctx context.Context, msg *domain.Message) er
 	if err != nil {
 		// Mark as failed
 		if markErr := s.messageService.SetFailed(ctx, msg.ID); markErr != nil {
-			fmt.Printf("Failed to mark message %d as failed: %v\n", msg.ID, markErr)
+			log.Printf("Failed to mark message %d as failed: %v\n", msg.ID, markErr)
 		}
 		return fmt.Errorf("webhook send failed: %w", err)
 	}

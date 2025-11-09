@@ -1,38 +1,39 @@
-package messagesender
+package handler
 
 import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/srcndev/message-service/internal/job"
 	"github.com/srcndev/message-service/pkg/customerror"
 	"github.com/srcndev/message-service/pkg/customresponse"
 )
 
-// Handler interface defines message sender HTTP handlers
-type Handler interface {
+// SenderHandler interface defines message sender HTTP handlers
+type SenderHandler interface {
 	Start(c *gin.Context)
 	Stop(c *gin.Context)
 	Status(c *gin.Context)
 	RegisterRoutes(rg *gin.RouterGroup)
 }
 
-// handler is the private implementation of Handler interface
-type handler struct {
-	job Job
+// senderHandler is the private implementation of SenderHandler interface
+type senderHandler struct {
+	messageSenderJob job.MessageSenderJob
 }
 
 // Compile-time interface compliance check
-var _ Handler = (*handler)(nil)
+var _ SenderHandler = (*senderHandler)(nil)
 
-// NewHandler creates a new message sender handler
-func NewHandler(job Job) Handler {
-	return &handler{
-		job: job,
+// NewSenderHandler creates a new message sender handler
+func NewSenderHandler(messageSenderJob job.MessageSenderJob) SenderHandler {
+	return &senderHandler{
+		messageSenderJob: messageSenderJob,
 	}
 }
 
 // RegisterRoutes registers message sender routes
-func (h *handler) RegisterRoutes(rg *gin.RouterGroup) {
+func (h *senderHandler) RegisterRoutes(rg *gin.RouterGroup) {
 	sender := rg.Group("/sender")
 	{
 		sender.POST("/start", h.Start)
@@ -41,8 +42,8 @@ func (h *handler) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-func (h *handler) Start(c *gin.Context) {
-	if err := h.job.Start(c.Request.Context()); err != nil {
+func (h *senderHandler) Start(c *gin.Context) {
+	if err := h.messageSenderJob.Start(c.Request.Context()); err != nil {
 		if customErr, ok := err.(*customerror.CustomError); ok {
 			customresponse.Error(c, customErr.GetStatusCode(), customErr.Code, customErr.Message)
 		} else {
@@ -54,8 +55,8 @@ func (h *handler) Start(c *gin.Context) {
 	customresponse.Success(c, http.StatusOK, gin.H{"message": "Message sender started"})
 }
 
-func (h *handler) Stop(c *gin.Context) {
-	if err := h.job.Stop(c.Request.Context()); err != nil {
+func (h *senderHandler) Stop(c *gin.Context) {
+	if err := h.messageSenderJob.Stop(c.Request.Context()); err != nil {
 		if customErr, ok := err.(*customerror.CustomError); ok {
 			customresponse.Error(c, customErr.GetStatusCode(), customErr.Code, customErr.Message)
 		} else {
@@ -67,8 +68,8 @@ func (h *handler) Stop(c *gin.Context) {
 	customresponse.Success(c, http.StatusOK, gin.H{"message": "Message sender stopped"})
 }
 
-func (h *handler) Status(c *gin.Context) {
+func (h *senderHandler) Status(c *gin.Context) {
 	customresponse.Success(c, http.StatusOK, gin.H{
-		"running": h.job.IsRunning(),
+		"running": h.messageSenderJob.IsRunning(),
 	})
 }

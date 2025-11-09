@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/srcndev/message-service/internal/apperror"
 	"github.com/srcndev/message-service/internal/domain"
 	"github.com/srcndev/message-service/internal/dto"
 	"github.com/srcndev/message-service/internal/repository"
@@ -46,7 +47,7 @@ func (s *messageService) Create(ctx context.Context, req dto.CreateMessageReques
 	}
 
 	if err := s.repo.Create(ctx, message); err != nil {
-		return nil, dto.ErrMessageCreateFailed.WithError(err)
+		return nil, apperror.ErrMessageCreateFailed.WithError(err)
 	}
 
 	return message, nil
@@ -57,9 +58,9 @@ func (s *messageService) GetByID(ctx context.Context, id uint) (*domain.Message,
 	message, err := s.repo.GetByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, dto.ErrMessageNotFound
+			return nil, apperror.ErrMessageNotFound
 		}
-		return nil, dto.ErrMessageListFailed.WithError(err)
+		return nil, apperror.ErrMessageListFailed.WithError(err)
 	}
 
 	return message, nil
@@ -69,7 +70,7 @@ func (s *messageService) GetByID(ctx context.Context, id uint) (*domain.Message,
 func (s *messageService) List(ctx context.Context, limit, offset int) ([]*domain.Message, error) {
 	messages, err := s.repo.List(ctx, limit, offset)
 	if err != nil {
-		return nil, dto.ErrMessageListFailed.WithError(err)
+		return nil, apperror.ErrMessageListFailed.WithError(err)
 	}
 
 	return messages, nil
@@ -79,7 +80,7 @@ func (s *messageService) List(ctx context.Context, limit, offset int) ([]*domain
 func (s *messageService) GetPendingMessages(ctx context.Context, limit int) ([]*domain.Message, error) {
 	messages, err := s.repo.GetPendingMessages(ctx, limit)
 	if err != nil {
-		return nil, dto.ErrMessageListFailed.WithError(err)
+		return nil, apperror.ErrMessageListFailed.WithError(err)
 	}
 	return messages, nil
 }
@@ -89,9 +90,9 @@ func (s *messageService) SetSent(ctx context.Context, id uint, messageID string)
 	message, err := s.repo.GetByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return dto.ErrMessageNotFound
+			return apperror.ErrMessageNotFound
 		}
-		return dto.ErrMessageUpdateFailed.WithError(err)
+		return apperror.ErrMessageUpdateFailed.WithError(err)
 	}
 
 	now := time.Now()
@@ -100,7 +101,7 @@ func (s *messageService) SetSent(ctx context.Context, id uint, messageID string)
 	message.SentAt = &now
 
 	if err := s.repo.Update(ctx, message); err != nil {
-		return dto.ErrMessageUpdateFailed.WithError(err)
+		return apperror.ErrMessageUpdateFailed.WithError(err)
 	}
 
 	return nil
@@ -111,15 +112,15 @@ func (s *messageService) SetFailed(ctx context.Context, id uint) error {
 	message, err := s.repo.GetByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return dto.ErrMessageNotFound
+			return apperror.ErrMessageNotFound
 		}
-		return dto.ErrMessageUpdateFailed.WithError(err)
+		return apperror.ErrMessageUpdateFailed.WithError(err)
 	}
 
 	message.Status = domain.StatusFailed
 
 	if err := s.repo.Update(ctx, message); err != nil {
-		return dto.ErrMessageUpdateFailed.WithError(err)
+		return apperror.ErrMessageUpdateFailed.WithError(err)
 	}
 
 	return nil
@@ -130,9 +131,9 @@ func (s *messageService) Update(ctx context.Context, id uint, req dto.UpdateMess
 	message, err := s.repo.GetByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, dto.ErrMessageNotFound
+			return nil, apperror.ErrMessageNotFound
 		}
-		return nil, dto.ErrMessageUpdateFailed.WithError(err)
+		return nil, apperror.ErrMessageUpdateFailed.WithError(err)
 	}
 
 	// Update only provided fields
@@ -147,7 +148,7 @@ func (s *messageService) Update(ctx context.Context, id uint, req dto.UpdateMess
 	}
 
 	if err := s.repo.Update(ctx, message); err != nil {
-		return nil, dto.ErrMessageUpdateFailed.WithError(err)
+		return nil, apperror.ErrMessageUpdateFailed.WithError(err)
 	}
 
 	return message, nil
@@ -157,9 +158,9 @@ func (s *messageService) Update(ctx context.Context, id uint, req dto.UpdateMess
 func (s *messageService) Delete(ctx context.Context, id uint) error {
 	if err := s.repo.Delete(ctx, id); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return dto.ErrMessageNotFound
+			return apperror.ErrMessageNotFound
 		}
-		return dto.ErrMessageDeleteFailed.WithError(err)
+		return apperror.ErrMessageDeleteFailed.WithError(err)
 	}
 	return nil
 }

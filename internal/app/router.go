@@ -19,7 +19,7 @@ func (a *App) setupRouter() {
 	v1 := router.Group("/api/v1")
 	{
 		a.container.MessageHandler.RegisterRoutes(v1)
-		a.container.MessageSenderHandler.RegisterRoutes(v1)
+		a.container.SenderHandler.RegisterRoutes(v1)
 	}
 
 	a.router = router

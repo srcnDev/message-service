@@ -9,7 +9,7 @@ import (
 	"github.com/srcndev/message-service/config"
 	"github.com/srcndev/message-service/internal/domain"
 	"github.com/srcndev/message-service/internal/handler"
-	"github.com/srcndev/message-service/internal/messagesender"
+	"github.com/srcndev/message-service/internal/job"
 	"github.com/srcndev/message-service/internal/repository"
 	"github.com/srcndev/message-service/internal/service"
 	"github.com/srcndev/message-service/pkg/database"
@@ -28,15 +28,15 @@ type Container struct {
 	// Services
 	HealthService        health.Service
 	MessageService       service.MessageService
-	MessageSenderService messagesender.Service
+	MessageSenderService service.MessageSenderService
 
 	// Jobs
-	MessageSenderJob messagesender.Job
+	MessageSenderJob job.MessageSenderJob
 
 	// Handlers
-	HealthHandler        health.Handler
-	MessageHandler       handler.MessageHandler
-	MessageSenderHandler messagesender.Handler
+	HealthHandler  health.Handler
+	MessageHandler handler.MessageHandler
+	SenderHandler  handler.SenderHandler
 
 	// Clients
 	WebhookClient webhook.Client
@@ -59,7 +59,6 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 	container.setupClients()
 	container.setupRepositories()
 	container.setupServices()
-	container.setupJobs()
 	container.setupHandlers()
 
 	// Run migrations
@@ -89,30 +88,28 @@ func (c *Container) setupRepositories() {
 func (c *Container) setupServices() {
 	c.HealthService = health.NewService()
 	c.MessageService = service.NewMessageService(c.MessageRepo)
-	c.MessageSenderService = messagesender.NewService(
+	c.MessageSenderService = service.NewMessageSenderService(
 		c.MessageService,
 		c.WebhookClient,
 		2, // Batch size: 2 messages per cycle
 	)
-}
 
-// setupJobs initializes all scheduled jobs
-func (c *Container) setupJobs() {
-	job, err := messagesender.NewJob(
+	// Create scheduler job
+	messageSenderJob, err := job.NewMessageSenderJob(
 		c.MessageSenderService,
 		5*time.Second, // Every 5 seconds
 	)
 	if err != nil {
 		log.Fatalf("Failed to create message sender job: %v", err)
 	}
-	c.MessageSenderJob = job
+	c.MessageSenderJob = messageSenderJob
 }
 
 // setupHandlers initializes all HTTP handlers
 func (c *Container) setupHandlers() {
 	c.HealthHandler = health.NewHandler(c.HealthService)
 	c.MessageHandler = handler.NewMessageHandler(c.MessageService)
-	c.MessageSenderHandler = messagesender.NewHandler(c.MessageSenderJob)
+	c.SenderHandler = handler.NewSenderHandler(c.MessageSenderJob)
 }
 
 // migrate runs database migrations

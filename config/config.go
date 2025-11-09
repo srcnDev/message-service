@@ -3,6 +3,8 @@ package config
 import (
 	"fmt"
 	"os"
+	"strconv"
+	"time"
 
 	"github.com/joho/godotenv"
 )
@@ -12,6 +14,7 @@ type Config struct {
 	AppURL  string
 
 	Database DatabaseConfig
+	Webhook  WebhookConfig
 }
 
 // DatabaseConfig holds database connection settings
@@ -23,10 +26,32 @@ type DatabaseConfig struct {
 	Name     string
 }
 
+// WebhookConfig holds webhook client settings
+type WebhookConfig struct {
+	BaseURL    string
+	AuthKey    string
+	Timeout    time.Duration
+	MaxRetries int
+}
+
 func NewConfig() (*Config, error) {
 
 	if err := godotenv.Load(); err != nil {
 		fmt.Println("Info: .env file not found, using system environment variables")
+	}
+
+	webhookTimeout := 30 * time.Second
+	if timeoutStr := getEnv("WEBHOOK_TIMEOUT", ""); timeoutStr != "" {
+		if timeout, err := time.ParseDuration(timeoutStr); err == nil {
+			webhookTimeout = timeout
+		}
+	}
+
+	webhookMaxRetries := 3
+	if retriesStr := getEnv("WEBHOOK_MAX_RETRIES", ""); retriesStr != "" {
+		if retries, err := strconv.Atoi(retriesStr); err == nil {
+			webhookMaxRetries = retries
+		}
 	}
 
 	cfg := &Config{
@@ -39,6 +64,13 @@ func NewConfig() (*Config, error) {
 			Username: getEnv("POSTGRES_DB_USERNAME", "user"),
 			Password: getEnv("POSTGRES_DB_PASSWORD", "password"),
 			Name:     getEnv("POSTGRES_DB_NAME", "messagedb"),
+		},
+
+		Webhook: WebhookConfig{
+			BaseURL:    getEnv("WEBHOOK_BASE_URL", "https://webhook.site/c3f13233-1ed4-429e-9649-8133b3b9c9cd"),
+			AuthKey:    getEnv("WEBHOOK_AUTH_KEY", "INS.me1x9uMcyYGlhKKQVPoc.bO3j9aZwRTOcA2Ywo"),
+			Timeout:    webhookTimeout,
+			MaxRetries: webhookMaxRetries,
 		},
 	}
 
@@ -70,6 +102,12 @@ func (c *Config) validate() error {
 	}
 	if c.Database.Name == "" {
 		return errDBNameEmpty
+	}
+	if c.Webhook.BaseURL == "" {
+		return errWebhookURLEmpty
+	}
+	if c.Webhook.AuthKey == "" {
+		return errWebhookAuthKeyEmpty
 	}
 	return nil
 }

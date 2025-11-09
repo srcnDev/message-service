@@ -13,4 +13,7 @@ var (
 	errDBUsernameEmpty = customerror.NewWithDefaults("DB_USERNAME_EMPTY", "Database username cannot be empty")
 	errDBPasswordEmpty = customerror.NewWithDefaults("DB_PASSWORD_EMPTY", "Database password cannot be empty")
 	errDBNameEmpty     = customerror.NewWithDefaults("DB_NAME_EMPTY", "Database name cannot be empty")
+
+	errWebhookURLEmpty     = customerror.NewWithDefaults("WEBHOOK_URL_EMPTY", "Webhook URL cannot be empty")
+	errWebhookAuthKeyEmpty = customerror.NewWithDefaults("WEBHOOK_AUTH_KEY_EMPTY", "Webhook auth key cannot be empty")
 )

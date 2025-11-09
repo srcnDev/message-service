@@ -18,7 +18,7 @@ const (
 type Message struct {
 	ID          uint           `gorm:"primaryKey" json:"id"`
 	PhoneNumber string         `gorm:"type:varchar(20);not null;index" json:"phoneNumber"`
-	Content     string         `gorm:"type:varchar(500);not null" json:"content"`
+	Content     string         `gorm:"type:varchar(160);not null" json:"content"`
 	Status      MessageStatus  `gorm:"type:varchar(20);not null;default:'pending';index" json:"status"`
 	MessageID   *string        `gorm:"type:varchar(100);uniqueIndex" json:"messageId,omitempty"`
 	SentAt      *time.Time     `json:"sentAt,omitempty"`

@@ -9,6 +9,7 @@ import (
 	"gorm.io/gorm/logger"
 
 	"github.com/srcndev/message-service/config"
+	"github.com/srcndev/message-service/internal/domain"
 	applogger "github.com/srcndev/message-service/pkg/logger"
 )
 
@@ -48,4 +49,14 @@ func NewPostgresDB(cfg *config.Config) (*gorm.DB, error) {
 
 	applogger.Info("Database connection established")
 	return db, nil
+}
+
+// AutoMigrate runs database migrations for all models
+func AutoMigrate(db *gorm.DB) error {
+	if err := db.AutoMigrate(&domain.Message{}); err != nil {
+		return errDatabaseMigrationFailed.WithError(err)
+	}
+
+	applogger.Info("Database auto-migration completed")
+	return nil
 }

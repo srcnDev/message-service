@@ -27,7 +27,7 @@ var _ Client = (*client)(nil)
 
 // Config holds webhook client configuration
 type Config struct {
-	BaseURL    string
+	URL        string
 	AuthKey    string
 	Timeout    time.Duration
 	MaxRetries int
@@ -58,7 +58,7 @@ func New(cfg Config) Client {
 
 	return &client{
 		httpClient: httpclient.New(httpCfg),
-		baseURL:    cfg.BaseURL,
+		baseURL:    cfg.URL,
 		authKey:    cfg.AuthKey,
 	}
 }

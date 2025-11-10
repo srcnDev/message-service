@@ -39,7 +39,7 @@ type RedisConfig struct {
 
 // WebhookConfig holds webhook client settings
 type WebhookConfig struct {
-	BaseURL    string
+	URL        string
 	AuthKey    string
 	Timeout    time.Duration
 	MaxRetries int
@@ -119,7 +119,7 @@ func NewConfig() (*Config, error) {
 		},
 
 		Webhook: WebhookConfig{
-			BaseURL:    getEnv("WEBHOOK_BASE_URL", "https://webhook.site/7d2fa94f-bb3c-47d7-b787-8aaacbd5097d"),
+			URL:        getEnv("WEBHOOK_URL", "https://webhook.site/c3f13233-1ed4-429e-9649-8133b3b9c9cd"),
 			AuthKey:    getEnv("WEBHOOK_AUTH_KEY", "INS.me1x9uMcyYGlhKKQVPoc.bO3j9aZwRTOcA2Ywo"),
 			Timeout:    webhookTimeout,
 			MaxRetries: webhookMaxRetries,
@@ -160,7 +160,7 @@ func (c *Config) validate() error {
 	if c.Database.Name == "" {
 		return errDBNameEmpty
 	}
-	if c.Webhook.BaseURL == "" {
+	if c.Webhook.URL == "" {
 		return errWebhookURLEmpty
 	}
 	if c.Webhook.AuthKey == "" {

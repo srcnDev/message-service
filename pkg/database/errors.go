@@ -6,4 +6,5 @@ var (
 	errDatabaseConnectionFailed = customerror.NewWithDefaults("DB_CONNECTION_FAILED", "Failed to connect to database")
 	errDatabaseInstanceFailed   = customerror.NewWithDefaults("DB_INSTANCE_FAILED", "Failed to get database instance")
 	errDatabasePingFailed       = customerror.NewWithDefaults("DB_PING_FAILED", "Failed to ping database")
+	errDatabaseMigrationFailed  = customerror.NewWithDefaults("DB_MIGRATION_FAILED", "Failed to migrate database tables")
 )

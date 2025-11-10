@@ -299,7 +299,7 @@ func TestClient_SendMessage_InvalidJSON(t *testing.T) {
 
 func TestNew(t *testing.T) {
 	cfg := Config{
-		BaseURL:    "https://webhook.test",
+		URL:    "https://webhook.test",
 		AuthKey:    "test-key",
 		Timeout:    30,
 		MaxRetries: 3,
@@ -312,7 +312,7 @@ func TestNew(t *testing.T) {
 	// Type assertion to access private fields
 	c, ok := webhookClient.(*client)
 	assert.True(t, ok)
-	assert.Equal(t, cfg.BaseURL, c.baseURL)
+	assert.Equal(t, cfg.URL, c.baseURL)
 	assert.Equal(t, cfg.AuthKey, c.authKey)
 	assert.NotNil(t, c.httpClient)
 }
@@ -321,7 +321,7 @@ func TestClient_InterfaceCompliance(t *testing.T) {
 	var _ Client = (*client)(nil) // Compile-time check
 
 	cfg := Config{
-		BaseURL: "https://test.com",
+		URL: "https://test.com",
 		AuthKey: "key",
 	}
 

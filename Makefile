@@ -1,75 +1,53 @@
-# Simple Makefile for Go project
+# Message Service Makefile
 
-# Binary names
-BINARY_NAME=message-service
-MIGRATE_BINARY=migrate
+.PHONY: all build run migrate test docker-up docker-down docker-prod docker-prod-down clean
 
-# Generate Swagger documentation
-swag:
-	@echo "Generating Swagger docs..."
-	@swag init -g cmd/api/main.go -o docs --parseDependency --parseInternal
+# Default target
+all: build test
 
 # Build the application
 build:
-	@echo "Building application..."
-	@go build -o bin/$(BINARY_NAME) ./cmd/api
-
-# Build migration tool
-build-migrate:
-	@echo "Building migration tool..."
-	@go build -o bin/$(MIGRATE_BINARY) ./cmd/migrate
-
-# Run migrations only
-migrate: build-migrate
-	@echo "Running migrations..."
-	@./bin/$(MIGRATE_BINARY)
-
-# Run migrations and seed data
-migrate-seed: build-migrate
-	@echo "Running migrations and seeding..."
-	@./bin/$(MIGRATE_BINARY) -seed
+	@echo "Building..."
+	@go build -o bin/message-service.exe cmd/api/main.go
 
 # Run the application
 run:
+	@echo "Starting application..."
 	@go run cmd/api/main.go
+
+# Run migrations and seed data
+migrate:
+	@echo "Running migrations and seeding data..."
+	@go run cmd/migrate/main.go -seed
 
 # Test the application
 test:
 	@echo "Running tests..."
-	@go test ./... -v
+	@go test ./... -v -short
 
-# Test with coverage
-test-coverage:
-	@echo "Running tests with coverage..."
-	@go test ./... -cover -coverprofile=coverage.out
-	@echo "\nCoverage summary:"
-	@go tool cover -func=coverage.out | grep total
+# Start infrastructure (PostgreSQL + Redis only)
+docker-up:
+	@echo "Starting infrastructure..."
+	@docker-compose up -d
+	@echo "Infrastructure started! (PostgreSQL + Redis)"
 
-# View coverage in browser
-test-coverage-html:
-	@echo "Generating HTML coverage report..."
-	@go test ./... -coverprofile=coverage.out
-	@go tool cover -html=coverage.out
+# Stop infrastructure
+docker-down:
+	@echo "Stopping infrastructure..."
+	@docker-compose down
 
-# Clean the binary
+# Start production (PostgreSQL + Redis + App)
+docker-prod:
+	@echo "Starting production environment..."
+	@docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d --build
+	@echo "Production started! API: http://localhost:8080"
+
+# Stop production
+docker-prod-down:
+	@echo "Stopping production environment..."
+	@docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml down
+
+# Clean build artifacts
 clean:
 	@echo "Cleaning..."
 	@rm -rf bin/
-
-# Install dependencies
-install:
-	@echo "Installing dependencies..."
-	@go mod download
-	@go mod tidy
-
-# Reset database and seed
-db-reset:
-	@echo "Resetting database..."
-	@docker-compose down -v
-	@docker-compose up -d psql redis
-	@sleep 5
-	@echo "Running migrations and seeding..."
-	@$(MAKE) migrate-seed
-	@echo "Database ready with seed data!"
-
-.PHONY: build build-migrate migrate migrate-seed run test test-coverage test-coverage-html clean install swag db-reset

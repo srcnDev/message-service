@@ -52,6 +52,12 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 		return nil, err
 	}
 
+	// Auto-migrate database tables
+	if err := database.AutoMigrate(db); err != nil {
+		return nil, err
+	}
+	logger.Info("Database tables migrated successfully")
+
 	container := &Container{
 		Config: cfg,
 		DB:     db,
@@ -89,12 +95,13 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 
 // setupClients initializes all external clients
 func (c *Container) setupClients() {
-	c.WebhookClient = webhook.New(webhook.Config{
-		BaseURL:    c.Config.Webhook.BaseURL,
+	webhookClient := webhook.New(webhook.Config{
+		URL:        c.Config.Webhook.URL,
 		AuthKey:    c.Config.Webhook.AuthKey,
 		Timeout:    c.Config.Webhook.Timeout,
 		MaxRetries: c.Config.Webhook.MaxRetries,
 	})
+	c.WebhookClient = webhookClient
 }
 
 // setupRepositories initializes all repositories

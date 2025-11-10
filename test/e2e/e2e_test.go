@@ -114,7 +114,7 @@ func setupTestApp(t *testing.T, webhookURL string) (*gin.Engine, *gorm.DB, handl
 
 	// Create webhook client
 	webhookClient := webhook.New(webhook.Config{
-		BaseURL:    webhookURL,
+		URL:    webhookURL,
 		AuthKey:    "test-auth-key",
 		Timeout:    10 * time.Second,
 		MaxRetries: 3,

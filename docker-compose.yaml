@@ -1,6 +1,8 @@
+# Base: Infrastructure only (PostgreSQL + Redis)
 services:
   psql:
-    image: postgres:latest
+    image: postgres:15-alpine
+    container_name: message-service-postgres
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB_NAME}
@@ -9,16 +11,22 @@ services:
     ports:
       - "${POSTGRES_DB_PORT}:5432"
     volumes:
-      - psql_volume_bp:/var/lib/postgresql
+      - psql_volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_DB_USERNAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7-alpine
+    container_name: message-service-redis
     restart: unless-stopped
     ports:
       - "${REDIS_PORT}:6379"
-    command: redis-server
+    command: redis-server --appendonly yes
     volumes:
-      - redis_volume_bp:/data
+      - redis_volume:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -26,5 +34,5 @@ services:
       retries: 5
 
 volumes:
-  psql_volume_bp:
-  redis_volume_bp:
+  psql_volume:
+  redis_volume:

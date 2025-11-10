@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/srcndev/message-service/internal/domain"
 	"github.com/srcndev/message-service/internal/dto"
@@ -40,6 +41,14 @@ func (m *MockMessageRepository) List(ctx context.Context, limit, offset int) ([]
 
 func (m *MockMessageRepository) GetPendingMessages(ctx context.Context, limit int) ([]*domain.Message, error) {
 	args := m.Called(ctx, limit)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]*domain.Message), args.Error(1)
+}
+
+func (m *MockMessageRepository) GetSentMessages(ctx context.Context, limit, offset int) ([]*domain.Message, error) {
+	args := m.Called(ctx, limit, offset)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
@@ -184,6 +193,62 @@ func TestMessageService_List_Error(t *testing.T) {
 	assert.Error(t, err)
 	assert.Nil(t, result)
 	assert.Contains(t, err.Error(), "MESSAGE_LIST_FAILED")
+	mockRepo.AssertExpectations(t)
+}
+
+func TestMessageService_ListSentMessages_Success(t *testing.T) {
+	mockRepo := new(MockMessageRepository)
+	service := NewMessageService(mockRepo)
+
+	sentAt := time.Now()
+	msgID1 := "msg-123"
+	msgID2 := "msg-456"
+
+	expectedMessages := []*domain.Message{
+		{ID: 1, PhoneNumber: "+905551111111", Content: "Message 1", Status: domain.StatusSent, MessageID: &msgID1, SentAt: &sentAt},
+		{ID: 2, PhoneNumber: "+905552222222", Content: "Message 2", Status: domain.StatusSent, MessageID: &msgID2, SentAt: &sentAt},
+	}
+
+	mockRepo.On("GetSentMessages", mock.Anything, 10, 0).Return(expectedMessages, nil)
+
+	result, err := service.ListSentMessages(context.Background(), 10, 0)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, result)
+	assert.Len(t, result, 2)
+	assert.Equal(t, domain.StatusSent, result[0].Status)
+	assert.Equal(t, domain.StatusSent, result[1].Status)
+	assert.NotNil(t, result[0].MessageID)
+	assert.NotNil(t, result[1].MessageID)
+	mockRepo.AssertExpectations(t)
+}
+
+func TestMessageService_ListSentMessages_Error(t *testing.T) {
+	mockRepo := new(MockMessageRepository)
+	service := NewMessageService(mockRepo)
+
+	dbError := errors.New("database error")
+	mockRepo.On("GetSentMessages", mock.Anything, 10, 0).Return(nil, dbError)
+
+	result, err := service.ListSentMessages(context.Background(), 10, 0)
+
+	assert.Error(t, err)
+	assert.Nil(t, result)
+	assert.Contains(t, err.Error(), "MESSAGE_LIST_FAILED")
+	mockRepo.AssertExpectations(t)
+}
+
+func TestMessageService_ListSentMessages_EmptyResult(t *testing.T) {
+	mockRepo := new(MockMessageRepository)
+	service := NewMessageService(mockRepo)
+
+	mockRepo.On("GetSentMessages", mock.Anything, 5, 10).Return([]*domain.Message{}, nil)
+
+	result, err := service.ListSentMessages(context.Background(), 5, 10)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, result)
+	assert.Empty(t, result)
 	mockRepo.AssertExpectations(t)
 }
 

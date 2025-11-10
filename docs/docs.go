@@ -39,7 +39,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/pkg_health.Status"
+                            "$ref": "#/definitions/health.Status"
                         }
                     }
                 }
@@ -80,7 +80,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse"
+                                    "$ref": "#/definitions/customresponse.CustomResponse"
                                 },
                                 {
                                     "type": "object",
@@ -88,7 +88,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/github_com_srcndev_message-service_internal_dto.MessageResponse"
+                                                "$ref": "#/definitions/dto.MessageResponse"
                                             }
                                         }
                                     }
@@ -99,7 +99,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse"
+                            "$ref": "#/definitions/customresponse.CustomResponse"
                         }
                     }
                 }
@@ -123,7 +123,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_srcndev_message-service_internal_dto.CreateMessageRequest"
+                            "$ref": "#/definitions/dto.CreateMessageRequest"
                         }
                     }
                 ],
@@ -133,13 +133,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse"
+                                    "$ref": "#/definitions/customresponse.CustomResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_srcndev_message-service_internal_dto.MessageResponse"
+                                            "$ref": "#/definitions/dto.MessageResponse"
                                         }
                                     }
                                 }
@@ -149,13 +149,73 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse"
+                            "$ref": "#/definitions/customresponse.CustomResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse"
+                            "$ref": "#/definitions/customresponse.CustomResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/messages/sent": {
+            "get": {
+                "description": "Get a list of sent messages with pagination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "messages"
+                ],
+                "summary": "List sent messages",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Limit",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Offset",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/customresponse.CustomResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.MessageResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/customresponse.CustomResponse"
                         }
                     }
                 }
@@ -189,13 +249,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse"
+                                    "$ref": "#/definitions/customresponse.CustomResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_srcndev_message-service_internal_dto.MessageResponse"
+                                            "$ref": "#/definitions/dto.MessageResponse"
                                         }
                                     }
                                 }
@@ -205,19 +265,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse"
+                            "$ref": "#/definitions/customresponse.CustomResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse"
+                            "$ref": "#/definitions/customresponse.CustomResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse"
+                            "$ref": "#/definitions/customresponse.CustomResponse"
                         }
                     }
                 }
@@ -248,7 +308,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_srcndev_message-service_internal_dto.UpdateMessageRequest"
+                            "$ref": "#/definitions/dto.UpdateMessageRequest"
                         }
                     }
                 ],
@@ -258,13 +318,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse"
+                                    "$ref": "#/definitions/customresponse.CustomResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_srcndev_message-service_internal_dto.MessageResponse"
+                                            "$ref": "#/definitions/dto.MessageResponse"
                                         }
                                     }
                                 }
@@ -274,19 +334,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse"
+                            "$ref": "#/definitions/customresponse.CustomResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse"
+                            "$ref": "#/definitions/customresponse.CustomResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse"
+                            "$ref": "#/definitions/customresponse.CustomResponse"
                         }
                     }
                 }
@@ -316,25 +376,25 @@ const docTemplate = `{
                     "204": {
                         "description": "No Content",
                         "schema": {
-                            "$ref": "#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse"
+                            "$ref": "#/definitions/customresponse.CustomResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse"
+                            "$ref": "#/definitions/customresponse.CustomResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse"
+                            "$ref": "#/definitions/customresponse.CustomResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse"
+                            "$ref": "#/definitions/customresponse.CustomResponse"
                         }
                     }
                 }
@@ -359,7 +419,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse"
+                                    "$ref": "#/definitions/customresponse.CustomResponse"
                                 },
                                 {
                                     "type": "object",
@@ -378,13 +438,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse"
+                            "$ref": "#/definitions/customresponse.CustomResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse"
+                            "$ref": "#/definitions/customresponse.CustomResponse"
                         }
                     }
                 }
@@ -409,7 +469,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse"
+                                    "$ref": "#/definitions/customresponse.CustomResponse"
                                 },
                                 {
                                     "type": "object",
@@ -447,7 +507,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse"
+                                    "$ref": "#/definitions/customresponse.CustomResponse"
                                 },
                                 {
                                     "type": "object",
@@ -466,13 +526,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse"
+                            "$ref": "#/definitions/customresponse.CustomResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse"
+                            "$ref": "#/definitions/customresponse.CustomResponse"
                         }
                     }
                 }
@@ -480,20 +540,41 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "github_com_srcndev_message-service_internal_domain.MessageStatus": {
+        "customresponse.CustomResponse": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "error": {
+                    "$ref": "#/definitions/customresponse.ErrorInfo"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "customresponse.ErrorInfo": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.MessageStatus": {
             "type": "string",
             "enum": [
                 "pending",
-                "sent",
-                "failed"
+                "sent"
             ],
             "x-enum-varnames": [
                 "StatusPending",
-                "StatusSent",
-                "StatusFailed"
+                "StatusSent"
             ]
         },
-        "github_com_srcndev_message-service_internal_dto.CreateMessageRequest": {
+        "dto.CreateMessageRequest": {
             "type": "object",
             "required": [
                 "content",
@@ -502,8 +583,8 @@ const docTemplate = `{
             "properties": {
                 "content": {
                     "type": "string",
-                    "maxLength": 500,
-                    "example": "Hello"
+                    "maxLength": 160,
+                    "example": "Hello World"
                 },
                 "phoneNumber": {
                     "type": "string",
@@ -511,7 +592,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_srcndev_message-service_internal_dto.MessageResponse": {
+        "dto.MessageResponse": {
             "type": "object",
             "properties": {
                 "content": {
@@ -541,7 +622,7 @@ const docTemplate = `{
                 "status": {
                     "allOf": [
                         {
-                            "$ref": "#/definitions/github_com_srcndev_message-service_internal_domain.MessageStatus"
+                            "$ref": "#/definitions/domain.MessageStatus"
                         }
                     ],
                     "example": "pending"
@@ -552,12 +633,12 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_srcndev_message-service_internal_dto.UpdateMessageRequest": {
+        "dto.UpdateMessageRequest": {
             "type": "object",
             "properties": {
                 "content": {
                     "type": "string",
-                    "maxLength": 500
+                    "maxLength": 160
                 },
                 "phoneNumber": {
                     "type": "string"
@@ -565,41 +646,17 @@ const docTemplate = `{
                 "status": {
                     "enum": [
                         "pending",
-                        "sent",
-                        "failed"
+                        "sent"
                     ],
                     "allOf": [
                         {
-                            "$ref": "#/definitions/github_com_srcndev_message-service_internal_domain.MessageStatus"
+                            "$ref": "#/definitions/domain.MessageStatus"
                         }
                     ]
                 }
             }
         },
-        "github_com_srcndev_message-service_pkg_customresponse.CustomResponse": {
-            "type": "object",
-            "properties": {
-                "data": {},
-                "error": {
-                    "$ref": "#/definitions/github_com_srcndev_message-service_pkg_customresponse.ErrorInfo"
-                },
-                "success": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "github_com_srcndev_message-service_pkg_customresponse.ErrorInfo": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "pkg_health.Status": {
+        "health.Status": {
             "type": "object",
             "properties": {
                 "status": {

@@ -49,6 +49,14 @@ func (m *MockMessageService) List(ctx context.Context, limit, offset int) ([]*do
 	return args.Get(0).([]*domain.Message), args.Error(1)
 }
 
+func (m *MockMessageService) ListSentMessages(ctx context.Context, limit, offset int) ([]*domain.Message, error) {
+	args := m.Called(ctx, limit, offset)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]*domain.Message), args.Error(1)
+}
+
 func (m *MockMessageService) Update(ctx context.Context, id uint, req dto.UpdateMessageRequest) (*domain.Message, error) {
 	args := m.Called(ctx, id, req)
 	if args.Get(0) == nil {
@@ -353,6 +361,99 @@ func TestMessageHandler_List(t *testing.T) {
 	}
 }
 
+func TestMessageHandler_ListSent(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	tests := []struct {
+		name           string
+		queryParams    string
+		mockSetup      func(*MockMessageService)
+		expectedStatus int
+		validateBody   func(*testing.T, []byte)
+	}{
+		{
+			name:        "success - default pagination",
+			queryParams: "",
+			mockSetup: func(m *MockMessageService) {
+				sentAt := time.Now()
+				messageID := "msg-123"
+				m.On("ListSentMessages", mock.Anything, 10, 0).Return([]*domain.Message{
+					{ID: 1, PhoneNumber: "+905551111111", Content: "Sent Msg1", Status: domain.StatusSent, SentAt: &sentAt, MessageID: &messageID},
+				}, nil)
+			},
+			expectedStatus: http.StatusOK,
+			validateBody: func(t *testing.T, body []byte) {
+				var resp customresponse.CustomResponse
+				json.Unmarshal(body, &resp)
+				assert.True(t, resp.Success)
+				messages := resp.Data.([]interface{})
+				assert.Equal(t, 1, len(messages))
+			},
+		},
+		{
+			name:        "success - custom pagination",
+			queryParams: "?limit=5&offset=10",
+			mockSetup: func(m *MockMessageService) {
+				m.On("ListSentMessages", mock.Anything, 5, 10).Return([]*domain.Message{}, nil)
+			},
+			expectedStatus: http.StatusOK,
+			validateBody: func(t *testing.T, body []byte) {
+				var resp customresponse.CustomResponse
+				json.Unmarshal(body, &resp)
+				assert.True(t, resp.Success)
+			},
+		},
+		{
+			name:        "success - empty list",
+			queryParams: "",
+			mockSetup: func(m *MockMessageService) {
+				m.On("ListSentMessages", mock.Anything, 10, 0).Return([]*domain.Message{}, nil)
+			},
+			expectedStatus: http.StatusOK,
+			validateBody: func(t *testing.T, body []byte) {
+				var resp customresponse.CustomResponse
+				json.Unmarshal(body, &resp)
+				assert.True(t, resp.Success)
+				messages := resp.Data.([]interface{})
+				assert.Equal(t, 0, len(messages))
+			},
+		},
+		{
+			name:        "error - service error",
+			queryParams: "",
+			mockSetup: func(m *MockMessageService) {
+				m.On("ListSentMessages", mock.Anything, 10, 0).Return(nil, apperror.ErrMessageListFailed)
+			},
+			expectedStatus: http.StatusInternalServerError,
+			validateBody: func(t *testing.T, body []byte) {
+				var resp customresponse.CustomResponse
+				json.Unmarshal(body, &resp)
+				assert.False(t, resp.Success)
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockService := new(MockMessageService)
+			tt.mockSetup(mockService)
+
+			handler := NewMessageHandler(mockService)
+			router := setupRouter(handler)
+
+			req := httptest.NewRequest(http.MethodGet, "/api/messages/sent"+tt.queryParams, nil)
+			w := httptest.NewRecorder()
+			router.ServeHTTP(w, req)
+
+			assert.Equal(t, tt.expectedStatus, w.Code)
+			if tt.validateBody != nil {
+				tt.validateBody(t, w.Body.Bytes())
+			}
+			mockService.AssertExpectations(t)
+		})
+	}
+}
+
 func TestMessageHandler_Update(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -529,6 +630,7 @@ func TestMessageHandler_RegisterRoutes(t *testing.T) {
 			"POST /api/messages":       true,
 			"GET /api/messages/:id":    true,
 			"GET /api/messages":        true,
+			"GET /api/messages/sent":   true,
 			"PUT /api/messages/:id":    true,
 			"DELETE /api/messages/:id": true,
 		}

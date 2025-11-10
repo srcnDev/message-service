@@ -224,6 +224,62 @@ func TestMessageRepository_GetPendingMessages_NoPending(t *testing.T) {
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
 
+func TestMessageRepository_GetSentMessages_Success(t *testing.T) {
+	db, mock, cleanup := setupMockDB(t)
+	defer cleanup()
+
+	repo := NewMessageRepository(db)
+
+	sentAt := time.Now()
+	msgID1 := "msg-123"
+	msgID2 := "msg-456"
+
+	rows := sqlmock.NewRows([]string{
+		"id", "created_at", "updated_at", "deleted_at",
+		"phone_number", "content", "status", "message_id", "sent_at",
+	}).
+		AddRow(1, time.Now(), time.Now(), nil, "+905551234567", "Message 1", domain.StatusSent, msgID1, sentAt).
+		AddRow(2, time.Now(), time.Now(), nil, "+905551234568", "Message 2", domain.StatusSent, msgID2, sentAt)
+
+	mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "messages" WHERE status = $1`)).
+		WillReturnRows(rows)
+
+	messages, err := repo.GetSentMessages(context.Background(), 10, 0)
+
+	assert.NoError(t, err)
+	assert.Len(t, messages, 2)
+	if len(messages) == 2 {
+		assert.Equal(t, domain.StatusSent, messages[0].Status)
+		assert.Equal(t, domain.StatusSent, messages[1].Status)
+		assert.NotNil(t, messages[0].MessageID)
+		assert.NotNil(t, messages[1].MessageID)
+		assert.Equal(t, msgID1, *messages[0].MessageID)
+		assert.Equal(t, msgID2, *messages[1].MessageID)
+	}
+	assert.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestMessageRepository_GetSentMessages_NoSent(t *testing.T) {
+	db, mock, cleanup := setupMockDB(t)
+	defer cleanup()
+
+	repo := NewMessageRepository(db)
+
+	rows := sqlmock.NewRows([]string{
+		"id", "created_at", "updated_at", "deleted_at",
+		"phone_number", "content", "status", "message_id", "sent_at",
+	})
+
+	mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "messages" WHERE status = $1`)).
+		WillReturnRows(rows)
+
+	messages, err := repo.GetSentMessages(context.Background(), 10, 0)
+
+	assert.NoError(t, err)
+	assert.Empty(t, messages)
+	assert.NoError(t, mock.ExpectationsWereMet())
+}
+
 func TestMessageRepository_Update_Success(t *testing.T) {
 	db, mock, cleanup := setupMockDB(t)
 	defer cleanup()

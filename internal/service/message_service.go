@@ -17,6 +17,7 @@ type MessageService interface {
 	Create(ctx context.Context, req dto.CreateMessageRequest) (*domain.Message, error)
 	GetByID(ctx context.Context, id uint) (*domain.Message, error)
 	List(ctx context.Context, limit, offset int) ([]*domain.Message, error)
+	ListSentMessages(ctx context.Context, limit, offset int) ([]*domain.Message, error)
 	GetPendingMessages(ctx context.Context, limit int) ([]*domain.Message, error)
 	SetSent(ctx context.Context, id uint, messageID string) error
 	Update(ctx context.Context, id uint, req dto.UpdateMessageRequest) (*domain.Message, error)
@@ -68,6 +69,16 @@ func (s *messageService) GetByID(ctx context.Context, id uint) (*domain.Message,
 // List retrieves all messages with pagination
 func (s *messageService) List(ctx context.Context, limit, offset int) ([]*domain.Message, error) {
 	messages, err := s.repo.List(ctx, limit, offset)
+	if err != nil {
+		return nil, apperror.ErrMessageListFailed.WithError(err)
+	}
+
+	return messages, nil
+}
+
+// ListSentMessages retrieves only sent messages with pagination
+func (s *messageService) ListSentMessages(ctx context.Context, limit, offset int) ([]*domain.Message, error) {
+	messages, err := s.repo.GetSentMessages(ctx, limit, offset)
 	if err != nil {
 		return nil, apperror.ErrMessageListFailed.WithError(err)
 	}

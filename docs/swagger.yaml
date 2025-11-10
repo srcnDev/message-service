@@ -1,20 +1,33 @@
 basePath: /api/v1
 definitions:
-  github_com_srcndev_message-service_internal_domain.MessageStatus:
+  customresponse.CustomResponse:
+    properties:
+      data: {}
+      error:
+        $ref: '#/definitions/customresponse.ErrorInfo'
+      success:
+        type: boolean
+    type: object
+  customresponse.ErrorInfo:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+    type: object
+  domain.MessageStatus:
     enum:
     - pending
     - sent
-    - failed
     type: string
     x-enum-varnames:
     - StatusPending
     - StatusSent
-    - StatusFailed
-  github_com_srcndev_message-service_internal_dto.CreateMessageRequest:
+  dto.CreateMessageRequest:
     properties:
       content:
-        example: Hello
-        maxLength: 500
+        example: Hello World
+        maxLength: 160
         type: string
       phoneNumber:
         example: "+905551111111"
@@ -23,7 +36,7 @@ definitions:
     - content
     - phoneNumber
     type: object
-  github_com_srcndev_message-service_internal_dto.MessageResponse:
+  dto.MessageResponse:
     properties:
       content:
         example: Hello
@@ -45,43 +58,27 @@ definitions:
         type: string
       status:
         allOf:
-        - $ref: '#/definitions/github_com_srcndev_message-service_internal_domain.MessageStatus'
+        - $ref: '#/definitions/domain.MessageStatus'
         example: pending
       updatedAt:
         example: "2025-11-09T10:00:00Z"
         type: string
     type: object
-  github_com_srcndev_message-service_internal_dto.UpdateMessageRequest:
+  dto.UpdateMessageRequest:
     properties:
       content:
-        maxLength: 500
+        maxLength: 160
         type: string
       phoneNumber:
         type: string
       status:
         allOf:
-        - $ref: '#/definitions/github_com_srcndev_message-service_internal_domain.MessageStatus'
+        - $ref: '#/definitions/domain.MessageStatus'
         enum:
         - pending
         - sent
-        - failed
     type: object
-  github_com_srcndev_message-service_pkg_customresponse.CustomResponse:
-    properties:
-      data: {}
-      error:
-        $ref: '#/definitions/github_com_srcndev_message-service_pkg_customresponse.ErrorInfo'
-      success:
-        type: boolean
-    type: object
-  github_com_srcndev_message-service_pkg_customresponse.ErrorInfo:
-    properties:
-      code:
-        type: string
-      message:
-        type: string
-    type: object
-  pkg_health.Status:
+  health.Status:
     properties:
       status:
         type: string
@@ -110,7 +107,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/pkg_health.Status'
+            $ref: '#/definitions/health.Status'
       summary: Health check
       tags:
       - health
@@ -137,17 +134,17 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse'
+            - $ref: '#/definitions/customresponse.CustomResponse'
             - properties:
                 data:
                   items:
-                    $ref: '#/definitions/github_com_srcndev_message-service_internal_dto.MessageResponse'
+                    $ref: '#/definitions/dto.MessageResponse'
                   type: array
               type: object
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse'
+            $ref: '#/definitions/customresponse.CustomResponse'
       summary: List messages
       tags:
       - messages
@@ -161,7 +158,7 @@ paths:
         name: message
         required: true
         schema:
-          $ref: '#/definitions/github_com_srcndev_message-service_internal_dto.CreateMessageRequest'
+          $ref: '#/definitions/dto.CreateMessageRequest'
       produces:
       - application/json
       responses:
@@ -169,19 +166,19 @@ paths:
           description: Created
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse'
+            - $ref: '#/definitions/customresponse.CustomResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/github_com_srcndev_message-service_internal_dto.MessageResponse'
+                  $ref: '#/definitions/dto.MessageResponse'
               type: object
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse'
+            $ref: '#/definitions/customresponse.CustomResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse'
+            $ref: '#/definitions/customresponse.CustomResponse'
       summary: Create a new message
       tags:
       - messages
@@ -202,19 +199,19 @@ paths:
         "204":
           description: No Content
           schema:
-            $ref: '#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse'
+            $ref: '#/definitions/customresponse.CustomResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse'
+            $ref: '#/definitions/customresponse.CustomResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse'
+            $ref: '#/definitions/customresponse.CustomResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse'
+            $ref: '#/definitions/customresponse.CustomResponse'
       summary: Delete message
       tags:
       - messages
@@ -235,23 +232,23 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse'
+            - $ref: '#/definitions/customresponse.CustomResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/github_com_srcndev_message-service_internal_dto.MessageResponse'
+                  $ref: '#/definitions/dto.MessageResponse'
               type: object
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse'
+            $ref: '#/definitions/customresponse.CustomResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse'
+            $ref: '#/definitions/customresponse.CustomResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse'
+            $ref: '#/definitions/customresponse.CustomResponse'
       summary: Get message by ID
       tags:
       - messages
@@ -270,7 +267,7 @@ paths:
         name: message
         required: true
         schema:
-          $ref: '#/definitions/github_com_srcndev_message-service_internal_dto.UpdateMessageRequest'
+          $ref: '#/definitions/dto.UpdateMessageRequest'
       produces:
       - application/json
       responses:
@@ -278,24 +275,61 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse'
+            - $ref: '#/definitions/customresponse.CustomResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/github_com_srcndev_message-service_internal_dto.MessageResponse'
+                  $ref: '#/definitions/dto.MessageResponse'
               type: object
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse'
+            $ref: '#/definitions/customresponse.CustomResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse'
+            $ref: '#/definitions/customresponse.CustomResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse'
+            $ref: '#/definitions/customresponse.CustomResponse'
       summary: Update message
+      tags:
+      - messages
+  /messages/sent:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of sent messages with pagination
+      parameters:
+      - default: 10
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/customresponse.CustomResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.MessageResponse'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customresponse.CustomResponse'
+      summary: List sent messages
       tags:
       - messages
   /sender/start:
@@ -310,7 +344,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse'
+            - $ref: '#/definitions/customresponse.CustomResponse'
             - properties:
                 data:
                   additionalProperties:
@@ -320,11 +354,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse'
+            $ref: '#/definitions/customresponse.CustomResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse'
+            $ref: '#/definitions/customresponse.CustomResponse'
       summary: Start message sender
       tags:
       - sender
@@ -340,7 +374,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse'
+            - $ref: '#/definitions/customresponse.CustomResponse'
             - properties:
                 data:
                   additionalProperties:
@@ -362,7 +396,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse'
+            - $ref: '#/definitions/customresponse.CustomResponse'
             - properties:
                 data:
                   additionalProperties:
@@ -372,11 +406,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse'
+            $ref: '#/definitions/customresponse.CustomResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_srcndev_message-service_pkg_customresponse.CustomResponse'
+            $ref: '#/definitions/customresponse.CustomResponse'
       summary: Stop message sender
       tags:
       - sender

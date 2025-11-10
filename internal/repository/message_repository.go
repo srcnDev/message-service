@@ -13,6 +13,7 @@ type MessageRepository interface {
 	GetByID(ctx context.Context, id uint) (*domain.Message, error)
 	List(ctx context.Context, limit, offset int) ([]*domain.Message, error)
 	GetPendingMessages(ctx context.Context, limit int) ([]*domain.Message, error)
+	GetSentMessages(ctx context.Context, limit, offset int) ([]*domain.Message, error)
 	Update(ctx context.Context, message *domain.Message) error
 	Delete(ctx context.Context, id uint) error
 }
@@ -62,6 +63,18 @@ func (r *messageRepository) GetPendingMessages(ctx context.Context, limit int) (
 		Where("status = ?", domain.StatusPending).
 		Order("created_at ASC").
 		Limit(limit).
+		Find(&messages).Error
+	return messages, err
+}
+
+// GetSentMessages retrieves sent messages with pagination
+func (r *messageRepository) GetSentMessages(ctx context.Context, limit, offset int) ([]*domain.Message, error) {
+	var messages []*domain.Message
+	err := r.db.WithContext(ctx).
+		Where("status = ?", domain.StatusSent).
+		Limit(limit).
+		Offset(offset).
+		Order("sent_at DESC").
 		Find(&messages).Error
 	return messages, err
 }

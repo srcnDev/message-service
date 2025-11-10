@@ -51,6 +51,14 @@ func (m *MockMessageService) GetPendingMessages(ctx context.Context, limit int) 
 	return args.Get(0).([]*domain.Message), args.Error(1)
 }
 
+func (m *MockMessageService) ListSentMessages(ctx context.Context, limit, offset int) ([]*domain.Message, error) {
+	args := m.Called(ctx, limit, offset)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]*domain.Message), args.Error(1)
+}
+
 func (m *MockMessageService) SetSent(ctx context.Context, id uint, messageID string) error {
 	args := m.Called(ctx, id, messageID)
 	return args.Error(0)

@@ -518,6 +518,105 @@ func TestE2E_PaginationWorkflow(t *testing.T) {
 	assert.Equal(t, 5, len(messages))
 }
 
+// TestE2E_ListSentMessages tests listing only sent messages
+func TestE2E_ListSentMessages(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping E2E test in short mode")
+	}
+
+	// Setup
+	mockWebhook := NewMockWebhookServer()
+	defer mockWebhook.Close()
+
+	router, db, _, _ := setupTestApp(t, mockWebhook.server.URL)
+	defer cleanupTestDB(t, db)
+
+	// Create 5 messages with different statuses
+	for i := 1; i <= 5; i++ {
+		createReq := dto.CreateMessageRequest{
+			PhoneNumber: fmt.Sprintf("+9055511111%02d", i),
+			Content:     fmt.Sprintf("Message %d", i),
+		}
+		body, _ := json.Marshal(createReq)
+		req := httptest.NewRequest(http.MethodPost, "/api/messages", bytes.NewBuffer(body))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusCreated, w.Code)
+	}
+
+	// Manually mark 3 messages as sent in database
+	var messages []*domain.Message
+	db.Find(&messages)
+	now := time.Now()
+	for i := 0; i < 3 && i < len(messages); i++ {
+		messageID := fmt.Sprintf("msg-%d", i+1)
+		messages[i].Status = domain.StatusSent
+		messages[i].MessageID = &messageID
+		messages[i].SentAt = &now
+		db.Save(messages[i])
+	}
+
+	// Test: List all messages
+	req := httptest.NewRequest(http.MethodGet, "/api/messages", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	var allResp customresponse.CustomResponse
+	json.Unmarshal(w.Body.Bytes(), &allResp)
+	allMessages := allResp.Data.([]interface{})
+	assert.Equal(t, 5, len(allMessages))
+
+	// Test: List only sent messages
+	req = httptest.NewRequest(http.MethodGet, "/api/messages/sent", nil)
+	w = httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	var sentResp customresponse.CustomResponse
+	json.Unmarshal(w.Body.Bytes(), &sentResp)
+	assert.True(t, sentResp.Success)
+
+	sentMessages := sentResp.Data.([]interface{})
+	assert.Equal(t, 3, len(sentMessages))
+
+	// Verify all returned messages have status "sent"
+	for _, msg := range sentMessages {
+		msgData := msg.(map[string]interface{})
+		assert.Equal(t, "sent", msgData["status"])
+		assert.NotNil(t, msgData["messageId"])
+		assert.NotNil(t, msgData["sentAt"])
+	}
+
+	// Test: Pagination for sent messages
+	req = httptest.NewRequest(http.MethodGet, "/api/messages/sent?limit=2&offset=0", nil)
+	w = httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	json.Unmarshal(w.Body.Bytes(), &sentResp)
+	sentMessages = sentResp.Data.([]interface{})
+	assert.Equal(t, 2, len(sentMessages))
+
+	// Test: Second page
+	req = httptest.NewRequest(http.MethodGet, "/api/messages/sent?limit=2&offset=2", nil)
+	w = httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	json.Unmarshal(w.Body.Bytes(), &sentResp)
+	sentMessages = sentResp.Data.([]interface{})
+	assert.Equal(t, 1, len(sentMessages))
+
+	// Test: Empty result when no more sent messages
+	req = httptest.NewRequest(http.MethodGet, "/api/messages/sent?limit=10&offset=10", nil)
+	w = httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	json.Unmarshal(w.Body.Bytes(), &sentResp)
+	sentMessages = sentResp.Data.([]interface{})
+	assert.Equal(t, 0, len(sentMessages))
+}
+
 func TestMain(m *testing.M) {
 	// Setup: You might want to create test database here
 	// For now, assuming test database exists

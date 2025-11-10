@@ -15,6 +15,7 @@ type MessageHandler interface {
 	Create(c *gin.Context)
 	GetByID(c *gin.Context)
 	List(c *gin.Context)
+	ListSent(c *gin.Context)
 	Update(c *gin.Context)
 	Delete(c *gin.Context)
 	RegisterRoutes(router *gin.RouterGroup)
@@ -42,6 +43,7 @@ func (h *messageHandler) RegisterRoutes(router *gin.RouterGroup) {
 		messages.POST("", h.Create)
 		messages.GET("/:id", h.GetByID)
 		messages.GET("", h.List)
+		messages.GET("/sent", h.ListSent)
 		messages.PUT("/:id", h.Update)
 		messages.DELETE("/:id", h.Delete)
 	}
@@ -130,6 +132,47 @@ func (h *messageHandler) List(c *gin.Context) {
 	}
 
 	messages, err := h.service.List(c.Request.Context(), limit, offset)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	responses := make([]dto.MessageResponse, len(messages))
+	for i, message := range messages {
+		responses[i] = dto.ToResponse(message)
+	}
+
+	customresponse.Success(c, http.StatusOK, responses)
+}
+
+// ListSent godoc
+// @Summary      List sent messages
+// @Description  Get a list of sent messages with pagination
+// @Tags         messages
+// @Accept       json
+// @Produce      json
+// @Param        limit   query     int  false  "Limit"   default(10)
+// @Param        offset  query     int  false  "Offset"  default(0)
+// @Success      200     {object}  customresponse.CustomResponse{data=[]dto.MessageResponse}
+// @Failure      500     {object}  customresponse.CustomResponse
+// @Router       /messages/sent [get]
+func (h *messageHandler) ListSent(c *gin.Context) {
+	limit := 10
+	offset := 0
+
+	if l := c.Query("limit"); l != "" {
+		if parsed, err := strconv.Atoi(l); err == nil && parsed > 0 {
+			limit = parsed
+		}
+	}
+
+	if o := c.Query("offset"); o != "" {
+		if parsed, err := strconv.Atoi(o); err == nil && parsed >= 0 {
+			offset = parsed
+		}
+	}
+
+	messages, err := h.service.ListSentMessages(c.Request.Context(), limit, offset)
 	if err != nil {
 		c.Error(err)
 		return

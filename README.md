@@ -2,7 +2,7 @@
 
 Automatic message sending service that sends SMS messages every 2 minutes via webhook using a custom Go scheduler.
 
-**Note:** Requires **Go 1.23+** and **Docker**.
+**Note:** Requires **Go 1.25.4+** and **Docker**.
 
 ---
 
@@ -17,7 +17,9 @@ make docker-prod
 ```
 
 API: http://localhost:8080  
-Swagger: http://localhost:8080/swagger/
+Swagger: http://localhost:8080/swagger/index.html
+
+**Note:** Message sender job starts automatically on application startup.
 
 ### Option 2: Local Development
 
@@ -26,13 +28,19 @@ Swagger: http://localhost:8080/swagger/
 git clone https://github.com/srcnDev/message-service.git
 cd message-service
 
-# 2. Start infrastructure (PostgreSQL + Redis)
+# 2. Configure environment (optional - .env file is already included)
+# Edit .env file if you need to change default settings
+
+# 3. Start infrastructure (PostgreSQL + Redis)
 docker-compose up -d
 
-# 3. Run migrations and seed data
+# 4. Wait for database to be ready (5-10 seconds)
+sleep 10
+
+# 5. Run migrations and seed data
 go run cmd/migrate/main.go -seed
 
-# 4. Start application
+# 6. Start application
 go run cmd/api/main.go
 ```
 
@@ -81,10 +89,12 @@ message-service/
 ### Makefile
 
 ```bash
-make build        # Build application binary
-make run          # Run application locally
-make migrate      # Run database migrations and seed data
-make test         # Run all tests
+make build         # Build application binary
+make run           # Run application locally
+make migrate       # Run database migrations and seed data
+make test          # Run unit tests (short mode)
+make test-e2e      # Run end-to-end tests
+make test-coverage # Run tests with coverage report
 
 # Infrastructure
 make docker-up    # Start PostgreSQL + Redis
@@ -93,6 +103,8 @@ make docker-down  # Stop infrastructure
 # Production
 make docker-prod      # Start full stack (PostgreSQL + Redis + App)
 make docker-prod-down # Stop production
+
+make clean        # Clean build artifacts
 ```
 
 ### Manual Commands
@@ -119,29 +131,44 @@ docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d
 
 ## API Endpoints
 
+### Messages
+
 ```bash
-GET  /health                   # Health check
+GET  /health                      # Health check
 
-GET  /api/v1/messages          # List all messages
-GET  /api/v1/messages/:id      # Get single message
-POST /api/v1/messages          # Create message
-PUT  /api/v1/messages/:id      # Update message
-DELETE /api/v1/messages/:id    # Delete message
-
-GET  /api/v1/sender/status     # Job status
-POST /api/v1/sender/start      # Start job
-POST /api/v1/sender/stop       # Stop job
+GET  /api/v1/messages             # List all messages (with pagination)
+GET  /api/v1/messages/sent        # List only sent messages (with pagination)
+GET  /api/v1/messages/:id         # Get single message by ID
+POST /api/v1/messages             # Create new message
+PUT  /api/v1/messages/:id         # Update message
+DELETE /api/v1/messages/:id       # Soft delete message
 ```
 
-**Example:**
+### Message Sender Job
+
+```bash
+GET  /api/v1/sender/status        # Get job status
+POST /api/v1/sender/start         # Start sending job
+POST /api/v1/sender/stop          # Stop sending job
+```
+
+**Note:** Job starts automatically on application startup.
+
+**Example - Create Message:**
 
 ```bash
 curl -X POST http://localhost:8080/api/v1/messages \
   -H "Content-Type: application/json" \
   -d '{
-    "phone_number": "+905551234567",
+    "phoneNumber": "+905551234567",
     "content": "Hello World"
   }'
+```
+
+**Example - List Sent Messages:**
+
+```bash
+curl http://localhost:8080/api/v1/messages/sent?limit=10&offset=0
 ```
 
 ---
@@ -177,32 +204,76 @@ WEBHOOK_AUTH_KEY=INS.me1x9uMcyYGlhKKQVPoc.bO3j9aZwRTOcA2Ywo
 
 ---
 
-## Key Features
-
-- ⏰ **Custom Scheduler**: Pure Go implementation using `time.Ticker`
-- 📦 **Batch Processing**: Sends exactly 2 messages per cycle
-- 🔄 **Idempotency**: Messages are never sent twice (status tracking)
-- 💾 **PostgreSQL**: Message storage with GORM
-- 🔴 **Redis Cache**: Stores sent message history (bonus feature)
-- 📝 **Swagger**: Auto-generated API documentation
-- ✅ **Tests**: 169 tests with 95%+ coverage
-
----
-
 ## Testing
 
+### Unit Tests
+
 ```bash
-# Run unit tests
-go test ./... -v
+# Run all unit tests
+go test ./... -v -short
 
 # With Makefile
 make test
 
-# With coverage
-go test ./... -cover
+# With coverage report
+go test ./... -cover -short
+
+# Test specific package
+go test ./internal/handler/... -v
 ```
 
-**Test Coverage:** 169 tests (163 unit + 6 e2e), 95-100% on core modules
+### E2E Tests
+
+```bash
+# Run end-to-end tests (requires running database)
+go test ./test/e2e/... -v -tags=e2e
+
+# Or with Makefile
+make test-e2e
+```
+
+**Test Coverage:** 225+ tests covering:
+- Unit tests: Handler, Service, Repository layers
+- Integration tests: Database operations
+- E2E tests: Full workflow testing
+
+---
+
+## Troubleshooting
+
+### Database Connection Issues
+
+```bash
+# Check if PostgreSQL is running
+docker ps | grep postgres
+
+# View logs
+docker-compose logs postgres
+
+# Restart infrastructure
+make docker-down && make docker-up
+```
+
+### Application Won't Start
+
+```bash
+# Check if port 8080 is available
+lsof -i :8080  # macOS/Linux
+netstat -ano | findstr :8080  # Windows
+
+# Check .env configuration
+cat .env
+
+# Verify database migrations
+go run cmd/migrate/main.go
+```
+
+### Message Sender Not Working
+
+1. Check job status: \`GET /api/v1/sender/status\`
+2. Verify webhook URL is accessible
+3. Check logs for errors
+4. Ensure database has pending messages
 
 ---
 

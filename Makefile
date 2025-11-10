@@ -1,6 +1,6 @@
 # Message Service Makefile
 
-.PHONY: all build run migrate test docker-up docker-down docker-prod docker-prod-down clean
+.PHONY: all build run migrate test test-e2e test-coverage docker-up docker-down docker-prod docker-prod-down clean
 
 # Default target
 all: build test
@@ -20,10 +20,20 @@ migrate:
 	@echo "Running migrations and seeding data..."
 	@go run cmd/migrate/main.go -seed
 
-# Test the application
+# Test the application (unit tests only)
 test:
-	@echo "Running tests..."
+	@echo "Running unit tests..."
 	@go test ./... -v -short
+
+# Run end-to-end tests
+test-e2e:
+	@echo "Running E2E tests..."
+	@go test ./test/e2e/... -v -tags=e2e
+
+# Test with coverage
+test-coverage:
+	@echo "Running tests with coverage..."
+	@go test ./... -cover -short
 
 # Start infrastructure (PostgreSQL + Redis only)
 docker-up:

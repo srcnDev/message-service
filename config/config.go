@@ -119,7 +119,7 @@ func NewConfig() (*Config, error) {
 		},
 
 		Webhook: WebhookConfig{
-			URL:        getEnv("WEBHOOK_URL", "https://webhook.site/c3f13233-1ed4-429e-9649-8133b3b9c9cd"),
+			URL:        getEnv("WEBHOOK_URL", "https://webhook.site/7d2fa94f-bb3c-47d7-b787-8aaacbd5097d"),
 			AuthKey:    getEnv("WEBHOOK_AUTH_KEY", "INS.me1x9uMcyYGlhKKQVPoc.bO3j9aZwRTOcA2Ywo"),
 			Timeout:    webhookTimeout,
 			MaxRetries: webhookMaxRetries,

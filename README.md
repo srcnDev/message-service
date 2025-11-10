@@ -171,15 +171,15 @@ MESSAGE_SENDER_INTERVAL=120    # seconds (2 minutes)
 MESSAGE_SENDER_BATCH_SIZE=2    # messages per cycle
 
 # Webhook
-WEBHOOK_URL=https://webhook.site/c3f13233-1ed4-429e-9649-8133b3b9c9cd
+WEBHOOK_URL=https://webhook.site/7d2fa94f-bb3c-47d7-b787-8aaacbd5097d
 WEBHOOK_AUTH_KEY=INS.me1x9uMcyYGlhKKQVPoc.bO3j9aZwRTOcA2Ywo
 ```
 
 ---
 
-## Key Features (Insider Case Study)
+## Key Features
 
-- ⏰ **Custom Scheduler**: Pure Go implementation using `time.Ticker` (no cron packages)
+- ⏰ **Custom Scheduler**: Pure Go implementation using `time.Ticker`
 - 📦 **Batch Processing**: Sends exactly 2 messages per cycle
 - 🔄 **Idempotency**: Messages are never sent twice (status tracking)
 - 💾 **PostgreSQL**: Message storage with GORM

@@ -54,6 +54,15 @@ make run          # Start application
 
 ---
 
+## Technology Stack
+
+- **Go 1.25.4+** - Programming language
+- **Gin** - High-performance HTTP web framework
+- **PostgreSQL** - Primary database for message storage and status tracking
+- **Redis** - Caching layer for sent messages (bonus feature)
+
+---
+
 ## Project Structure
 
 ```
@@ -65,7 +74,7 @@ message-service/
 │   ├── domain/           # Business entities
 │   ├── repository/       # Data access layer
 │   ├── service/          # Business logic
-│   ├── handler/          # HTTP handlers
+│   ├── handler/          # HTTP handlers (Gin)
 │   └── job/              # Background jobs (message sender)
 ├── pkg/
 │   ├── scheduler/        # Custom Go scheduler (no cron)

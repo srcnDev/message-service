@@ -36,9 +36,9 @@ type Container struct {
 	MessageSenderJob job.MessageSenderJob
 
 	// Handlers
-	HealthHandler  health.Handler
-	MessageHandler handler.MessageHandler
-	SenderHandler  handler.SenderHandler
+	HealthHandler        health.Handler
+	MessageHandler       handler.MessageHandler
+	MessageSenderHandler handler.MessageSenderHandler
 
 	// Clients
 	WebhookClient webhook.Client
@@ -141,7 +141,7 @@ func (c *Container) setupServices() {
 func (c *Container) setupHandlers() {
 	c.HealthHandler = health.NewHealthHandler(c.HealthService)
 	c.MessageHandler = handler.NewMessageHandler(c.MessageService)
-	c.SenderHandler = handler.NewSenderHandler(c.MessageSenderJob)
+	c.MessageSenderHandler = handler.NewMessageSenderHandler(c.MessageSenderJob)
 }
 
 // StartJobs starts all background jobs

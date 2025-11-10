@@ -52,24 +52,24 @@ func senderErrorHandlerMiddleware() gin.HandlerFunc {
 }
 
 // Helper to create router with middleware
-func setupSenderRouter(handler SenderHandler) *gin.Engine {
+func setupSenderRouter(handler MessageSenderHandler) *gin.Engine {
 	router := gin.New()
 	router.Use(senderErrorHandlerMiddleware())
 	handler.RegisterRoutes(router.Group("/api"))
 	return router
 }
 
-func TestNewSenderHandler(t *testing.T) {
+func TestNewMessageSenderHandler(t *testing.T) {
 	t.Run("creates handler successfully", func(t *testing.T) {
 		mockJob := new(MockMessageSenderJob)
-		handler := NewSenderHandler(mockJob)
+		handler := NewMessageSenderHandler(mockJob)
 
 		assert.NotNil(t, handler)
-		assert.Implements(t, (*SenderHandler)(nil), handler)
+		assert.Implements(t, (*MessageSenderHandler)(nil), handler)
 	})
 }
 
-func TestSenderHandler_Start(t *testing.T) {
+func TestMessageSenderHandler_Start(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	tests := []struct {
@@ -132,7 +132,7 @@ func TestSenderHandler_Start(t *testing.T) {
 			mockJob := new(MockMessageSenderJob)
 			tt.mockSetup(mockJob)
 
-			handler := NewSenderHandler(mockJob)
+			handler := NewMessageSenderHandler(mockJob)
 			router := setupSenderRouter(handler)
 
 			req := httptest.NewRequest(http.MethodPost, "/api/sender/start", nil)
@@ -149,7 +149,7 @@ func TestSenderHandler_Start(t *testing.T) {
 	}
 }
 
-func TestSenderHandler_Stop(t *testing.T) {
+func TestMessageSenderHandler_Stop(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	tests := []struct {
@@ -212,7 +212,7 @@ func TestSenderHandler_Stop(t *testing.T) {
 			mockJob := new(MockMessageSenderJob)
 			tt.mockSetup(mockJob)
 
-			handler := NewSenderHandler(mockJob)
+			handler := NewMessageSenderHandler(mockJob)
 			router := setupSenderRouter(handler)
 
 			req := httptest.NewRequest(http.MethodPost, "/api/sender/stop", nil)
@@ -229,7 +229,7 @@ func TestSenderHandler_Stop(t *testing.T) {
 	}
 }
 
-func TestSenderHandler_Status(t *testing.T) {
+func TestMessageSenderHandler_Status(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	tests := []struct {
@@ -279,7 +279,7 @@ func TestSenderHandler_Status(t *testing.T) {
 			mockJob := new(MockMessageSenderJob)
 			tt.mockSetup(mockJob)
 
-			handler := NewSenderHandler(mockJob)
+			handler := NewMessageSenderHandler(mockJob)
 			router := setupSenderRouter(handler)
 
 			req := httptest.NewRequest(http.MethodGet, "/api/sender/status", nil)
@@ -296,12 +296,12 @@ func TestSenderHandler_Status(t *testing.T) {
 	}
 }
 
-func TestSenderHandler_RegisterRoutes(t *testing.T) {
+func TestMessageSenderHandler_RegisterRoutes(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	t.Run("registers all routes", func(t *testing.T) {
 		mockJob := new(MockMessageSenderJob)
-		handler := NewSenderHandler(mockJob)
+		handler := NewMessageSenderHandler(mockJob)
 		router := gin.New()
 		handler.RegisterRoutes(router.Group("/api"))
 
@@ -324,19 +324,19 @@ func TestSenderHandler_RegisterRoutes(t *testing.T) {
 	})
 }
 
-func TestSenderHandler_InterfaceCompliance(t *testing.T) {
-	t.Run("handler implements SenderHandler interface", func(t *testing.T) {
+func TestMessageSenderHandler_InterfaceCompliance(t *testing.T) {
+	t.Run("handler implements MessageSenderHandler interface", func(t *testing.T) {
 		mockJob := new(MockMessageSenderJob)
-		var _ SenderHandler = NewSenderHandler(mockJob)
+		var _ MessageSenderHandler = NewMessageSenderHandler(mockJob)
 	})
 }
 
-func TestSenderHandler_MultipleStartStopCycles(t *testing.T) {
+func TestMessageSenderHandler_MultipleStartStopCycles(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	t.Run("can start and stop multiple times", func(t *testing.T) {
 		mockJob := new(MockMessageSenderJob)
-		handler := NewSenderHandler(mockJob)
+		handler := NewMessageSenderHandler(mockJob)
 		router := setupSenderRouter(handler)
 
 		// First start
@@ -364,12 +364,12 @@ func TestSenderHandler_MultipleStartStopCycles(t *testing.T) {
 	})
 }
 
-func TestSenderHandler_StatusCheckWhileRunning(t *testing.T) {
+func TestMessageSenderHandler_StatusCheckWhileRunning(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	t.Run("status changes correctly", func(t *testing.T) {
 		mockJob := new(MockMessageSenderJob)
-		handler := NewSenderHandler(mockJob)
+		handler := NewMessageSenderHandler(mockJob)
 		router := setupSenderRouter(handler)
 
 		// Check status - not running

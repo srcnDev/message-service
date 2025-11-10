@@ -105,7 +105,7 @@ func cleanupTestDB(t *testing.T, db *gorm.DB) {
 }
 
 // setupTestApp creates a complete application instance for testing
-func setupTestApp(t *testing.T, webhookURL string) (*gin.Engine, *gorm.DB, handler.MessageHandler, handler.SenderHandler) {
+func setupTestApp(t *testing.T, webhookURL string) (*gin.Engine, *gorm.DB, handler.MessageHandler, handler.MessageSenderHandler) {
 	db := setupTestDB(t)
 
 	// Create repositories
@@ -136,15 +136,15 @@ func setupTestApp(t *testing.T, webhookURL string) (*gin.Engine, *gorm.DB, handl
 
 	// Create handlers
 	messageHandler := handler.NewMessageHandler(messageService)
-	senderHandler := handler.NewSenderHandler(messageSenderJob)
+	messageSenderHandler := handler.NewMessageSenderHandler(messageSenderJob)
 
 	// Setup router
 	router := gin.New()
 	api := router.Group("/api")
 	messageHandler.RegisterRoutes(api)
-	senderHandler.RegisterRoutes(api)
+	messageSenderHandler.RegisterRoutes(api)
 
-	return router, db, messageHandler, senderHandler
+	return router, db, messageHandler, messageSenderHandler
 }
 
 // TestE2E_CreateAndListMessages tests message creation and listing

@@ -105,7 +105,7 @@ func (s *Seeder) seedPendingMessages(ctx context.Context, count int) error {
 		}
 
 		messages[i] = domain.Message{
-			PhoneNumber: s.generateTurkishPhone(),
+			PhoneNumber: s.generatePhone(),
 			Content:     content,
 			Status:      domain.StatusPending,
 		}
@@ -123,7 +123,7 @@ func (s *Seeder) seedSentMessages(ctx context.Context, count int) error {
 		messageID := s.faker.UUID().V4()
 
 		messages[i] = domain.Message{
-			PhoneNumber: s.generateTurkishPhone(),
+			PhoneNumber: s.generatePhone(),
 			Content:     fmt.Sprintf("This is a sent message: %s", s.faker.Lorem().Sentence(10)),
 			Status:      domain.StatusSent,
 			MessageID:   &messageID,
@@ -134,8 +134,8 @@ func (s *Seeder) seedSentMessages(ctx context.Context, count int) error {
 	return s.db.WithContext(ctx).Create(&messages).Error
 }
 
-// generateTurkishPhone generates a realistic Turkish phone number
-func (s *Seeder) generateTurkishPhone() string {
+// generatePhone generates a realistic Turkish phone number
+func (s *Seeder) generatePhone() string {
 	// Turkish mobile operators: 50x, 51x, 52x, 53x, 54x, 55x
 	operators := []string{"505", "506", "507", "530", "531", "532", "533", "534", "535", "536", "537", "538", "539", "541", "542", "543", "544", "545", "546", "547", "548", "549", "551", "552", "553", "554", "555", "559"}
 	operator := operators[s.faker.IntBetween(0, len(operators)-1)]

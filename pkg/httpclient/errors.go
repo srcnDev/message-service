@@ -6,35 +6,45 @@ import (
 	"github.com/srcndev/message-service/pkg/customerror"
 )
 
+// Error codes
+const (
+	ErrCodeHTTPRequestFailed    = "HTTP_REQUEST_FAILED"
+	ErrCodeHTTPTimeout          = "HTTP_TIMEOUT"
+	ErrCodeInvalidHTTPRequest   = "INVALID_HTTP_REQUEST"
+	ErrCodeUnexpectedHTTPStatus = "UNEXPECTED_HTTP_STATUS"
+)
+
+// Error messages
+const (
+	MsgHTTPRequestFailed    = "HTTP request failed"
+	MsgHTTPTimeout          = "HTTP request timed out"
+	MsgInvalidHTTPRequest   = "Invalid HTTP request"
+	MsgUnexpectedHTTPStatus = "Unexpected HTTP status code"
+)
+
+// Predefined errors
 var (
-	// ErrRequestFailed is returned when HTTP request fails
 	ErrRequestFailed = customerror.New(
-		"HTTP_REQUEST_FAILED",
-		"HTTP request failed",
+		ErrCodeHTTPRequestFailed,
+		MsgHTTPRequestFailed,
 		http.StatusBadGateway,
 	)
 
-	// ErrTimeout is returned when request times out
 	ErrTimeout = customerror.New(
-		"HTTP_TIMEOUT",
-		"HTTP request timed out",
+		ErrCodeHTTPTimeout,
+		MsgHTTPTimeout,
 		http.StatusGatewayTimeout,
 	)
 
-	// ErrInvalidRequest is returned when request is invalid
 	ErrInvalidRequest = customerror.New(
-		"INVALID_HTTP_REQUEST",
-		"Invalid HTTP request",
+		ErrCodeInvalidHTTPRequest,
+		MsgInvalidHTTPRequest,
 		http.StatusBadRequest,
 	)
 
-	// ErrUnexpectedStatus is returned when response status is unexpected
 	ErrUnexpectedStatus = customerror.New(
-		"UNEXPECTED_HTTP_STATUS",
-		"Unexpected HTTP status code",
+		ErrCodeUnexpectedHTTPStatus,
+		MsgUnexpectedHTTPStatus,
 		http.StatusBadGateway,
 	)
 )
-
-// Compile-time interface compliance check
-var _ error = (*customerror.CustomError)(nil)

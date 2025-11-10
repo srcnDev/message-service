@@ -140,37 +140,37 @@ func NewConfig() (*Config, error) {
 
 func (c *Config) validate() error {
 	if c.AppPort == "" {
-		return errAppPortEmpty
+		return ErrAppPortEmpty
 	}
 	if c.AppURL == "" {
-		return errAppURLEmpty
+		return ErrAppURLEmpty
 	}
 	if c.Database.Host == "" {
-		return errDBHostEmpty
+		return ErrDBHostEmpty
 	}
 	if c.Database.Port == "" {
-		return errDBPortEmpty
+		return ErrDBPortEmpty
 	}
 	if c.Database.Username == "" {
-		return errDBUsernameEmpty
+		return ErrDBUsernameEmpty
 	}
 	if c.Database.Password == "" {
-		return errDBPasswordEmpty
+		return ErrDBPasswordEmpty
 	}
 	if c.Database.Name == "" {
-		return errDBNameEmpty
+		return ErrDBNameEmpty
 	}
 	if c.Webhook.URL == "" {
-		return errWebhookURLEmpty
+		return ErrWebhookURLEmpty
 	}
 	if c.Webhook.AuthKey == "" {
-		return errWebhookAuthKeyEmpty
+		return ErrWebhookAuthKeyEmpty
 	}
 	if c.MessageSender.Interval <= 0 {
-		return errSenderIntervalInvalid
+		return ErrSenderIntervalInvalid
 	}
 	if c.MessageSender.BatchSize <= 0 {
-		return errSenderBatchSizeInvalid
+		return ErrSenderBatchSizeInvalid
 	}
 	return nil
 }

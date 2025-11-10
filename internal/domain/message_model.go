@@ -6,14 +6,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// MessageStatus represents the current state of a message
-type MessageStatus string
-
-const (
-	StatusPending MessageStatus = "pending"
-	StatusSent    MessageStatus = "sent"
-)
-
 // Message represents a message to be sent
 type Message struct {
 	ID          uint           `gorm:"primaryKey" json:"id"`

@@ -14,7 +14,7 @@ type SenderHandler interface {
 	Start(c *gin.Context)
 	Stop(c *gin.Context)
 	Status(c *gin.Context)
-	RegisterRoutes(rg *gin.RouterGroup)
+	RegisterRoutes(router *gin.RouterGroup)
 }
 
 // senderHandler is the private implementation of SenderHandler interface
@@ -33,8 +33,8 @@ func NewSenderHandler(messageSenderJob job.MessageSenderJob) SenderHandler {
 }
 
 // RegisterRoutes registers message sender routes
-func (h *senderHandler) RegisterRoutes(rg *gin.RouterGroup) {
-	sender := rg.Group("/sender")
+func (h *senderHandler) RegisterRoutes(router *gin.RouterGroup) {
+	sender := router.Group("/sender")
 	{
 		sender.POST("/start", h.Start)
 		sender.POST("/stop", h.Stop)

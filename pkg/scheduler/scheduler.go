@@ -60,7 +60,6 @@ func (s *scheduler) Start(ctx context.Context) error {
 	}
 
 	// Use background context for long-running scheduler
-	// Don't use the HTTP request context which will be cancelled
 	jobCtx, cancel := context.WithCancel(context.Background())
 	s.cancel = cancel
 	s.stoppedCh = make(chan struct{})

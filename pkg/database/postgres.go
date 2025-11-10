@@ -31,12 +31,12 @@ func NewPostgresDB(cfg *config.Config) (*gorm.DB, error) {
 		},
 	})
 	if err != nil {
-		return nil, errDatabaseConnectionFailed.WithError(err)
+		return nil, ErrDatabaseConnectionFailed.WithError(err)
 	}
 
 	sqlDB, err := db.DB()
 	if err != nil {
-		return nil, errDatabaseInstanceFailed.WithError(err)
+		return nil, ErrDatabaseInstanceFailed.WithError(err)
 	}
 
 	sqlDB.SetMaxIdleConns(10)
@@ -44,7 +44,7 @@ func NewPostgresDB(cfg *config.Config) (*gorm.DB, error) {
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
 	if err := sqlDB.Ping(); err != nil {
-		return nil, errDatabasePingFailed.WithError(err)
+		return nil, ErrDatabasePingFailed.WithError(err)
 	}
 
 	applogger.Info("Database connection established")
@@ -54,7 +54,7 @@ func NewPostgresDB(cfg *config.Config) (*gorm.DB, error) {
 // AutoMigrate runs database migrations for all models
 func AutoMigrate(db *gorm.DB) error {
 	if err := db.AutoMigrate(&domain.Message{}); err != nil {
-		return errDatabaseMigrationFailed.WithError(err)
+		return ErrDatabaseMigrationFailed.WithError(err)
 	}
 
 	applogger.Info("Database auto-migration completed")

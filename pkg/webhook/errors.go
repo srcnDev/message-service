@@ -6,21 +6,85 @@ import (
 	"github.com/srcndev/message-service/pkg/customerror"
 )
 
+// Error codes
+const (
+	ErrCodeWebhookConnectionFailed = "WEBHOOK_CONNECTION_FAILED"
+	ErrCodeWebhookTimeout          = "WEBHOOK_TIMEOUT"
+	ErrCodeWebhookInvalidURL       = "WEBHOOK_INVALID_URL"
+	ErrCodeWebhookInvalidRequest   = "WEBHOOK_INVALID_REQUEST"
+	ErrCodeWebhookUnauthorized     = "WEBHOOK_UNAUTHORIZED"
+	ErrCodeWebhookServerError      = "WEBHOOK_SERVER_ERROR"
+	ErrCodeWebhookParsingResponse  = "WEBHOOK_PARSING_ERROR"
+	ErrCodeInvalidPhoneNumber      = "INVALID_PHONE_NUMBER"
+	ErrCodeEmptyContent            = "EMPTY_CONTENT"
+)
+
+// Error messages
+const (
+	MsgWebhookConnectionFailed = "Failed to connect to webhook"
+	MsgWebhookTimeout          = "Webhook request timed out"
+	MsgWebhookInvalidURL       = "Invalid webhook URL"
+	MsgWebhookInvalidRequest   = "Invalid webhook request"
+	MsgWebhookUnauthorized     = "Webhook authentication failed"
+	MsgWebhookServerError      = "Webhook server error"
+	MsgWebhookParsingResponse  = "Failed to parse webhook response"
+	MsgInvalidPhoneNumber      = "Invalid phone number format"
+	MsgEmptyContent            = "Message content cannot be empty"
+)
+
+// Predefined errors
 var (
-	// Connection errors
-	ErrConnectionFailed = customerror.New("WEBHOOK_CONNECTION_FAILED", "failed to connect to webhook", http.StatusServiceUnavailable)
-	ErrTimeout          = customerror.New("WEBHOOK_TIMEOUT", "webhook request timed out", http.StatusGatewayTimeout)
+	ErrConnectionFailed = customerror.New(
+		ErrCodeWebhookConnectionFailed,
+		MsgWebhookConnectionFailed,
+		http.StatusServiceUnavailable,
+	)
 
-	// Request errors
-	ErrInvalidURL     = customerror.New("WEBHOOK_INVALID_URL", "invalid webhook URL", http.StatusInternalServerError)
-	ErrInvalidRequest = customerror.New("WEBHOOK_INVALID_REQUEST", "invalid webhook request", http.StatusBadRequest)
+	ErrTimeout = customerror.New(
+		ErrCodeWebhookTimeout,
+		MsgWebhookTimeout,
+		http.StatusGatewayTimeout,
+	)
 
-	// Response errors
-	ErrUnauthorized    = customerror.New("WEBHOOK_UNAUTHORIZED", "webhook authentication failed", http.StatusUnauthorized)
-	ErrServerError     = customerror.New("WEBHOOK_SERVER_ERROR", "webhook server error", http.StatusBadGateway)
-	ErrParsingResponse = customerror.New("WEBHOOK_PARSING_ERROR", "failed to parse webhook response", http.StatusInternalServerError)
+	ErrInvalidURL = customerror.New(
+		ErrCodeWebhookInvalidURL,
+		MsgWebhookInvalidURL,
+		http.StatusInternalServerError,
+	)
 
-	// Validation errors
-	ErrInvalidPhoneNumber = customerror.New("INVALID_PHONE_NUMBER", "invalid phone number format", http.StatusBadRequest)
-	ErrEmptyContent       = customerror.New("EMPTY_CONTENT", "message content cannot be empty", http.StatusBadRequest)
+	ErrInvalidRequest = customerror.New(
+		ErrCodeWebhookInvalidRequest,
+		MsgWebhookInvalidRequest,
+		http.StatusBadRequest,
+	)
+
+	ErrUnauthorized = customerror.New(
+		ErrCodeWebhookUnauthorized,
+		MsgWebhookUnauthorized,
+		http.StatusUnauthorized,
+	)
+
+	ErrServerError = customerror.New(
+		ErrCodeWebhookServerError,
+		MsgWebhookServerError,
+		http.StatusBadGateway,
+	)
+
+	ErrParsingResponse = customerror.New(
+		ErrCodeWebhookParsingResponse,
+		MsgWebhookParsingResponse,
+		http.StatusInternalServerError,
+	)
+
+	ErrInvalidPhoneNumber = customerror.New(
+		ErrCodeInvalidPhoneNumber,
+		MsgInvalidPhoneNumber,
+		http.StatusBadRequest,
+	)
+
+	ErrEmptyContent = customerror.New(
+		ErrCodeEmptyContent,
+		MsgEmptyContent,
+		http.StatusBadRequest,
+	)
 )

@@ -1,23 +1,66 @@
 package redis
 
-import "github.com/srcndev/message-service/pkg/customerror"
+import (
+	"net/http"
 
+	"github.com/srcndev/message-service/pkg/customerror"
+)
+
+// Error codes
+const (
+	ErrCodeRedisConnectionFailed = "REDIS_CONNECTION_FAILED"
+	ErrCodeRedisPingFailed       = "REDIS_PING_FAILED"
+	ErrCodeRedisSetFailed        = "REDIS_SET_FAILED"
+	ErrCodeRedisGetFailed        = "REDIS_GET_FAILED"
+	ErrCodeRedisDelFailed        = "REDIS_DEL_FAILED"
+	ErrCodeRedisKeyNotFound      = "REDIS_KEY_NOT_FOUND"
+)
+
+// Error messages
+const (
+	MsgRedisConnectionFailed = "Failed to connect to Redis"
+	MsgRedisPingFailed       = "Redis ping failed"
+	MsgRedisSetFailed        = "Failed to set value in Redis"
+	MsgRedisGetFailed        = "Failed to get value from Redis"
+	MsgRedisDelFailed        = "Failed to delete key from Redis"
+	MsgRedisKeyNotFound      = "Key not found in Redis"
+)
+
+// Predefined errors
 var (
-	// ErrRedisConnectionFailed indicates Redis connection failed
-	ErrRedisConnectionFailed = customerror.New("REDIS_CONNECTION_FAILED", "Failed to connect to Redis", 500)
+	ErrRedisConnectionFailed = customerror.New(
+		ErrCodeRedisConnectionFailed,
+		MsgRedisConnectionFailed,
+		http.StatusInternalServerError,
+	)
 
-	// ErrRedisPingFailed indicates Redis ping failed
-	ErrRedisPingFailed = customerror.New("REDIS_PING_FAILED", "Redis ping failed", 500)
+	ErrRedisPingFailed = customerror.New(
+		ErrCodeRedisPingFailed,
+		MsgRedisPingFailed,
+		http.StatusInternalServerError,
+	)
 
-	// ErrRedisSetFailed indicates Redis set operation failed
-	ErrRedisSetFailed = customerror.New("REDIS_SET_FAILED", "Failed to set value in Redis", 500)
+	ErrRedisSetFailed = customerror.New(
+		ErrCodeRedisSetFailed,
+		MsgRedisSetFailed,
+		http.StatusInternalServerError,
+	)
 
-	// ErrRedisGetFailed indicates Redis get operation failed
-	ErrRedisGetFailed = customerror.New("REDIS_GET_FAILED", "Failed to get value from Redis", 500)
+	ErrRedisGetFailed = customerror.New(
+		ErrCodeRedisGetFailed,
+		MsgRedisGetFailed,
+		http.StatusInternalServerError,
+	)
 
-	// ErrRedisDelFailed indicates Redis delete operation failed
-	ErrRedisDelFailed = customerror.New("REDIS_DEL_FAILED", "Failed to delete key from Redis", 500)
+	ErrRedisDelFailed = customerror.New(
+		ErrCodeRedisDelFailed,
+		MsgRedisDelFailed,
+		http.StatusInternalServerError,
+	)
 
-	// ErrRedisKeyNotFound indicates the key was not found in Redis
-	ErrRedisKeyNotFound = customerror.New("REDIS_KEY_NOT_FOUND", "Key not found in Redis", 404)
+	ErrRedisKeyNotFound = customerror.New(
+		ErrCodeRedisKeyNotFound,
+		MsgRedisKeyNotFound,
+		http.StatusNotFound,
+	)
 )

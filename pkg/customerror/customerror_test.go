@@ -136,7 +136,7 @@ func TestNew(t *testing.T) {
 	message := "Invalid input"
 	statusCode := http.StatusBadRequest
 
-	err := New(code, message, statusCode)
+	err := NewCustomError(code, message, statusCode)
 
 	assert.Equal(t, code, err.Code)
 	assert.Equal(t, message, err.Message)

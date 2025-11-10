@@ -24,25 +24,25 @@ const (
 
 // Predefined errors
 var (
-	ErrRequestFailed = customerror.New(
+	ErrRequestFailed = customerror.NewCustomError(
 		ErrCodeHTTPRequestFailed,
 		MsgHTTPRequestFailed,
 		http.StatusBadGateway,
 	)
 
-	ErrTimeout = customerror.New(
+	ErrTimeout = customerror.NewCustomError(
 		ErrCodeHTTPTimeout,
 		MsgHTTPTimeout,
 		http.StatusGatewayTimeout,
 	)
 
-	ErrInvalidRequest = customerror.New(
+	ErrInvalidRequest = customerror.NewCustomError(
 		ErrCodeInvalidHTTPRequest,
 		MsgInvalidHTTPRequest,
 		http.StatusBadRequest,
 	)
 
-	ErrUnexpectedStatus = customerror.New(
+	ErrUnexpectedStatus = customerror.NewCustomError(
 		ErrCodeUnexpectedHTTPStatus,
 		MsgUnexpectedHTTPStatus,
 		http.StatusBadGateway,

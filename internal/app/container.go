@@ -95,7 +95,7 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 
 // setupClients initializes all external clients
 func (c *Container) setupClients() {
-	webhookClient := webhook.New(webhook.Config{
+	webhookClient := webhook.NewWebhookClient(webhook.Config{
 		URL:        c.Config.Webhook.URL,
 		AuthKey:    c.Config.Webhook.AuthKey,
 		Timeout:    c.Config.Webhook.Timeout,
@@ -116,7 +116,7 @@ func (c *Container) setupRepositories() {
 
 // setupServices initializes all services
 func (c *Container) setupServices() {
-	c.HealthService = health.NewService()
+	c.HealthService = health.NewHealthService()
 	c.MessageService = service.NewMessageService(c.MessageRepo)
 	c.MessageSenderService = service.NewMessageSenderService(
 		c.MessageService,
@@ -139,7 +139,7 @@ func (c *Container) setupServices() {
 
 // setupHandlers initializes all HTTP handlers
 func (c *Container) setupHandlers() {
-	c.HealthHandler = health.NewHandler(c.HealthService)
+	c.HealthHandler = health.NewHealthHandler(c.HealthService)
 	c.MessageHandler = handler.NewMessageHandler(c.MessageService)
 	c.SenderHandler = handler.NewSenderHandler(c.MessageSenderJob)
 }

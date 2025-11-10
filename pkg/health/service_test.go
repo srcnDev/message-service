@@ -9,7 +9,7 @@ import (
 
 func TestNewService(t *testing.T) {
 	t.Run("creates service successfully", func(t *testing.T) {
-		svc := NewService()
+		svc := NewHealthService()
 
 		assert.NotNil(t, svc)
 		assert.IsType(t, &service{}, svc)
@@ -19,7 +19,7 @@ func TestNewService(t *testing.T) {
 func TestService_GetStatus(t *testing.T) {
 	t.Run("returns healthy status", func(t *testing.T) {
 		// Setup
-		svc := NewService().(*service)
+		svc := NewHealthService().(*service)
 
 		// Execute
 		status := svc.GetStatus()
@@ -31,7 +31,7 @@ func TestService_GetStatus(t *testing.T) {
 
 	t.Run("uptime increases over time", func(t *testing.T) {
 		// Setup
-		svc := NewService().(*service)
+		svc := NewHealthService().(*service)
 
 		// Execute - first check
 		status1 := svc.GetStatus()
@@ -46,7 +46,7 @@ func TestService_GetStatus(t *testing.T) {
 
 	t.Run("uptime format is valid duration string", func(t *testing.T) {
 		// Setup
-		svc := NewService().(*service)
+		svc := NewHealthService().(*service)
 
 		// Execute
 		status := svc.GetStatus()
@@ -58,7 +58,7 @@ func TestService_GetStatus(t *testing.T) {
 
 	t.Run("multiple calls return consistent status", func(t *testing.T) {
 		// Setup
-		svc := NewService().(*service)
+		svc := NewHealthService().(*service)
 
 		// Execute
 		for i := 0; i < 5; i++ {
@@ -73,7 +73,7 @@ func TestService_StartTime(t *testing.T) {
 	t.Run("start time is initialized on creation", func(t *testing.T) {
 		// Setup
 		before := time.Now()
-		svc := NewService().(*service)
+		svc := NewHealthService().(*service)
 		after := time.Now()
 
 		// Verify
@@ -85,7 +85,7 @@ func TestService_StartTime(t *testing.T) {
 func TestService_InterfaceCompliance(t *testing.T) {
 	t.Run("service implements Service interface", func(t *testing.T) {
 		var _ Service = (*service)(nil)
-		var _ Service = NewService()
+		var _ Service = NewHealthService()
 	})
 }
 

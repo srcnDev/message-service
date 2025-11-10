@@ -45,8 +45,8 @@ type SendMessageResponse struct {
 	MessageID string `json:"messageId"`
 }
 
-// New creates a new webhook client
-func New(cfg Config) Client {
+// NewWebhookClient creates a new webhook client
+func NewWebhookClient(cfg Config) Client {
 	httpCfg := httpclient.Config{
 		Timeout:    cfg.Timeout,
 		MaxRetries: cfg.MaxRetries,
@@ -57,7 +57,7 @@ func New(cfg Config) Client {
 	}
 
 	return &client{
-		httpClient: httpclient.New(httpCfg),
+		httpClient: httpclient.NewHTTPClient(httpCfg),
 		baseURL:    cfg.URL,
 		authKey:    cfg.AuthKey,
 	}

@@ -24,25 +24,25 @@ const (
 
 // Predefined errors
 var (
-	ErrContainerInitFailed = customerror.New(
+	ErrContainerInitFailed = customerror.NewCustomError(
 		ErrCodeContainerInitFailed,
 		MsgContainerInitFailed,
 		http.StatusInternalServerError,
 	)
 
-	ErrServerStartFailed = customerror.New(
+	ErrServerStartFailed = customerror.NewCustomError(
 		ErrCodeServerStartFailed,
 		MsgServerStartFailed,
 		http.StatusInternalServerError,
 	)
 
-	ErrServerStopFailed = customerror.New(
+	ErrServerStopFailed = customerror.NewCustomError(
 		ErrCodeServerStopFailed,
 		MsgServerStopFailed,
 		http.StatusInternalServerError,
 	)
 
-	ErrSchedulerInitFailed = customerror.New(
+	ErrSchedulerInitFailed = customerror.NewCustomError(
 		ErrCodeSchedulerInitFailed,
 		MsgSchedulerInitFailed,
 		http.StatusInternalServerError,

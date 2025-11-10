@@ -40,7 +40,7 @@ func main() {
 		logger.Fatal("Config init failed: %v", err)
 	}
 
-	application, err := app.New(cfg)
+	application, err := app.NewApp(cfg)
 	if err != nil {
 		logger.Fatal("App init failed: %v", err)
 	}

@@ -24,25 +24,25 @@ const (
 
 // Predefined errors
 var (
-	ErrInvalidInterval = customerror.New(
+	ErrInvalidInterval = customerror.NewCustomError(
 		ErrCodeSchedulerInvalidInterval,
 		MsgSchedulerInvalidInterval,
 		http.StatusBadRequest,
 	)
 
-	ErrNilJob = customerror.New(
+	ErrNilJob = customerror.NewCustomError(
 		ErrCodeSchedulerNilJob,
 		MsgSchedulerNilJob,
 		http.StatusBadRequest,
 	)
 
-	ErrAlreadyRunning = customerror.New(
+	ErrAlreadyRunning = customerror.NewCustomError(
 		ErrCodeSchedulerAlreadyRunning,
 		MsgSchedulerAlreadyRunning,
 		http.StatusConflict,
 	)
 
-	ErrNotRunning = customerror.New(
+	ErrNotRunning = customerror.NewCustomError(
 		ErrCodeSchedulerNotRunning,
 		MsgSchedulerNotRunning,
 		http.StatusConflict,

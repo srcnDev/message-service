@@ -34,55 +34,55 @@ const (
 
 // Predefined errors
 var (
-	ErrConnectionFailed = customerror.New(
+	ErrConnectionFailed = customerror.NewCustomError(
 		ErrCodeWebhookConnectionFailed,
 		MsgWebhookConnectionFailed,
 		http.StatusServiceUnavailable,
 	)
 
-	ErrTimeout = customerror.New(
+	ErrTimeout = customerror.NewCustomError(
 		ErrCodeWebhookTimeout,
 		MsgWebhookTimeout,
 		http.StatusGatewayTimeout,
 	)
 
-	ErrInvalidURL = customerror.New(
+	ErrInvalidURL = customerror.NewCustomError(
 		ErrCodeWebhookInvalidURL,
 		MsgWebhookInvalidURL,
 		http.StatusInternalServerError,
 	)
 
-	ErrInvalidRequest = customerror.New(
+	ErrInvalidRequest = customerror.NewCustomError(
 		ErrCodeWebhookInvalidRequest,
 		MsgWebhookInvalidRequest,
 		http.StatusBadRequest,
 	)
 
-	ErrUnauthorized = customerror.New(
+	ErrUnauthorized = customerror.NewCustomError(
 		ErrCodeWebhookUnauthorized,
 		MsgWebhookUnauthorized,
 		http.StatusUnauthorized,
 	)
 
-	ErrServerError = customerror.New(
+	ErrServerError = customerror.NewCustomError(
 		ErrCodeWebhookServerError,
 		MsgWebhookServerError,
 		http.StatusBadGateway,
 	)
 
-	ErrParsingResponse = customerror.New(
+	ErrParsingResponse = customerror.NewCustomError(
 		ErrCodeWebhookParsingResponse,
 		MsgWebhookParsingResponse,
 		http.StatusInternalServerError,
 	)
 
-	ErrInvalidPhoneNumber = customerror.New(
+	ErrInvalidPhoneNumber = customerror.NewCustomError(
 		ErrCodeInvalidPhoneNumber,
 		MsgInvalidPhoneNumber,
 		http.StatusBadRequest,
 	)
 
-	ErrEmptyContent = customerror.New(
+	ErrEmptyContent = customerror.NewCustomError(
 		ErrCodeEmptyContent,
 		MsgEmptyContent,
 		http.StatusBadRequest,

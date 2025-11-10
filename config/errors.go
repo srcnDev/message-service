@@ -38,67 +38,67 @@ const (
 
 // Predefined errors
 var (
-	ErrAppPortEmpty = customerror.New(
+	ErrAppPortEmpty = customerror.NewCustomError(
 		ErrCodeAppPortEmpty,
 		MsgAppPortEmpty,
 		http.StatusBadRequest,
 	)
 
-	ErrAppURLEmpty = customerror.New(
+	ErrAppURLEmpty = customerror.NewCustomError(
 		ErrCodeAppURLEmpty,
 		MsgAppURLEmpty,
 		http.StatusBadRequest,
 	)
 
-	ErrDBHostEmpty = customerror.New(
+	ErrDBHostEmpty = customerror.NewCustomError(
 		ErrCodeDBHostEmpty,
 		MsgDBHostEmpty,
 		http.StatusBadRequest,
 	)
 
-	ErrDBPortEmpty = customerror.New(
+	ErrDBPortEmpty = customerror.NewCustomError(
 		ErrCodeDBPortEmpty,
 		MsgDBPortEmpty,
 		http.StatusBadRequest,
 	)
 
-	ErrDBUsernameEmpty = customerror.New(
+	ErrDBUsernameEmpty = customerror.NewCustomError(
 		ErrCodeDBUsernameEmpty,
 		MsgDBUsernameEmpty,
 		http.StatusBadRequest,
 	)
 
-	ErrDBPasswordEmpty = customerror.New(
+	ErrDBPasswordEmpty = customerror.NewCustomError(
 		ErrCodeDBPasswordEmpty,
 		MsgDBPasswordEmpty,
 		http.StatusBadRequest,
 	)
 
-	ErrDBNameEmpty = customerror.New(
+	ErrDBNameEmpty = customerror.NewCustomError(
 		ErrCodeDBNameEmpty,
 		MsgDBNameEmpty,
 		http.StatusBadRequest,
 	)
 
-	ErrWebhookURLEmpty = customerror.New(
+	ErrWebhookURLEmpty = customerror.NewCustomError(
 		ErrCodeWebhookURLEmpty,
 		MsgWebhookURLEmpty,
 		http.StatusBadRequest,
 	)
 
-	ErrWebhookAuthKeyEmpty = customerror.New(
+	ErrWebhookAuthKeyEmpty = customerror.NewCustomError(
 		ErrCodeWebhookAuthKeyEmpty,
 		MsgWebhookAuthKeyEmpty,
 		http.StatusBadRequest,
 	)
 
-	ErrSenderIntervalInvalid = customerror.New(
+	ErrSenderIntervalInvalid = customerror.NewCustomError(
 		ErrCodeSenderIntervalInvalid,
 		MsgSenderIntervalInvalid,
 		http.StatusBadRequest,
 	)
 
-	ErrSenderBatchSizeInvalid = customerror.New(
+	ErrSenderBatchSizeInvalid = customerror.NewCustomError(
 		ErrCodeSenderBatchSizeInvalid,
 		MsgSenderBatchSizeInvalid,
 		http.StatusBadRequest,

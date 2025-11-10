@@ -18,8 +18,8 @@ type App struct {
 	server    *http.Server
 }
 
-// New creates and initializes the application
-func New(cfg *config.Config) (*App, error) {
+// NewApp creates and initializes the application
+func NewApp(cfg *config.Config) (*App, error) {
 	// Create DI container
 	container, err := NewContainer(cfg)
 	if err != nil {

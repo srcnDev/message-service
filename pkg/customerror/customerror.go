@@ -47,8 +47,8 @@ func (e *CustomError) WithError(err error) *CustomError {
 	}
 }
 
-// New creates a new CustomError
-func New(code, message string, statusCode int) *CustomError {
+// NewCustomError creates a new CustomError
+func NewCustomError(code, message string, statusCode int) *CustomError {
 	status := statusCode
 	return &CustomError{
 		Code:       code,

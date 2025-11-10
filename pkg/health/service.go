@@ -17,8 +17,8 @@ type service struct {
 // Compile-time interface compliance check
 var _ Service = (*service)(nil)
 
-// NewService creates a new health check service
-func NewService() Service {
+// NewHealthService creates a new health check service
+func NewHealthService() Service {
 	return &service{
 		startTime: time.Now(),
 	}

@@ -14,7 +14,7 @@ func TestNew_Success(t *testing.T) {
 		return nil
 	}
 
-	scheduler, err := New(job, 100*time.Millisecond)
+	scheduler, err := NewScheduler(job, 100*time.Millisecond)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, scheduler)
@@ -36,7 +36,7 @@ func TestNew_InvalidInterval(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			scheduler, err := New(job, tt.interval)
+			scheduler, err := NewScheduler(job, tt.interval)
 
 			assert.Error(t, err)
 			assert.Nil(t, scheduler)
@@ -46,7 +46,7 @@ func TestNew_InvalidInterval(t *testing.T) {
 }
 
 func TestNew_NilJob(t *testing.T) {
-	scheduler, err := New(nil, 1*time.Second)
+	scheduler, err := NewScheduler(nil, 1*time.Second)
 
 	assert.Error(t, err)
 	assert.Nil(t, scheduler)
@@ -60,7 +60,7 @@ func TestScheduler_Start_Success(t *testing.T) {
 		return nil
 	}
 
-	scheduler, _ := New(job, 50*time.Millisecond)
+	scheduler, _ := NewScheduler(job, 50*time.Millisecond)
 
 	err := scheduler.Start(context.Background())
 	assert.NoError(t, err)
@@ -81,7 +81,7 @@ func TestScheduler_Start_Success(t *testing.T) {
 func TestScheduler_Start_AlreadyRunning(t *testing.T) {
 	job := func(ctx context.Context) error { return nil }
 
-	scheduler, _ := New(job, 1*time.Second)
+	scheduler, _ := NewScheduler(job, 1*time.Second)
 
 	// Start first time
 	err := scheduler.Start(context.Background())
@@ -104,7 +104,7 @@ func TestScheduler_Stop_Success(t *testing.T) {
 		return nil
 	}
 
-	scheduler, _ := New(job, 100*time.Millisecond)
+	scheduler, _ := NewScheduler(job, 100*time.Millisecond)
 
 	// Start scheduler
 	_ = scheduler.Start(context.Background())
@@ -122,7 +122,7 @@ func TestScheduler_Stop_Success(t *testing.T) {
 func TestScheduler_Stop_NotRunning(t *testing.T) {
 	job := func(ctx context.Context) error { return nil }
 
-	scheduler, _ := New(job, 1*time.Second)
+	scheduler, _ := NewScheduler(job, 1*time.Second)
 
 	// Try to stop without starting
 	stopCtx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
@@ -136,7 +136,7 @@ func TestScheduler_Stop_NotRunning(t *testing.T) {
 func TestScheduler_IsRunning(t *testing.T) {
 	job := func(ctx context.Context) error { return nil }
 
-	scheduler, _ := New(job, 100*time.Millisecond)
+	scheduler, _ := NewScheduler(job, 100*time.Millisecond)
 
 	// Initially not running
 	assert.False(t, scheduler.IsRunning())
@@ -159,7 +159,7 @@ func TestScheduler_JobError_ContinuesRunning(t *testing.T) {
 		return errors.New("job error")
 	}
 
-	scheduler, _ := New(job, 50*time.Millisecond)
+	scheduler, _ := NewScheduler(job, 50*time.Millisecond)
 
 	_ = scheduler.Start(context.Background())
 
@@ -188,7 +188,7 @@ func TestScheduler_JobPanic_Recovered(t *testing.T) {
 		return nil
 	}
 
-	scheduler, _ := New(job, 50*time.Millisecond)
+	scheduler, _ := NewScheduler(job, 50*time.Millisecond)
 
 	_ = scheduler.Start(context.Background())
 
@@ -212,7 +212,7 @@ func TestScheduler_ContextCancellation(t *testing.T) {
 		return nil
 	}
 
-	scheduler, _ := New(job, 50*time.Millisecond)
+	scheduler, _ := NewScheduler(job, 50*time.Millisecond)
 
 	// Start with cancellable context
 	ctx, cancel := context.WithCancel(context.Background())
@@ -247,7 +247,7 @@ func TestScheduler_ImmediateExecution(t *testing.T) {
 		return nil
 	}
 
-	scheduler, _ := New(job, 1*time.Second)
+	scheduler, _ := NewScheduler(job, 1*time.Second)
 
 	startTime := time.Now()
 	_ = scheduler.Start(context.Background())
@@ -271,7 +271,7 @@ func TestScheduler_ConcurrentStartStop(t *testing.T) {
 		return nil
 	}
 
-	scheduler, _ := New(job, 50*time.Millisecond)
+	scheduler, _ := NewScheduler(job, 50*time.Millisecond)
 
 	// Start scheduler
 	_ = scheduler.Start(context.Background())
@@ -306,7 +306,7 @@ func TestScheduler_InterfaceCompliance(t *testing.T) {
 	var _ Scheduler = (*scheduler)(nil) // Compile-time check
 
 	job := func(ctx context.Context) error { return nil }
-	s, _ := New(job, 1*time.Second)
+	s, _ := NewScheduler(job, 1*time.Second)
 
 	assert.NotNil(t, s)
 }

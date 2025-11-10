@@ -24,25 +24,25 @@ const (
 
 // Predefined errors
 var (
-	ErrMessageSendFailed = customerror.New(
+	ErrMessageSendFailed = customerror.NewCustomError(
 		ErrCodeMessageSendFailed,
 		MsgMessageSendFailed,
 		http.StatusInternalServerError,
 	)
 
-	ErrWebhookCallFailed = customerror.New(
+	ErrWebhookCallFailed = customerror.NewCustomError(
 		ErrCodeWebhookCallFailed,
 		MsgWebhookCallFailed,
 		http.StatusBadGateway,
 	)
 
-	ErrMarkSentFailed = customerror.New(
+	ErrMarkSentFailed = customerror.NewCustomError(
 		ErrCodeMarkSentFailed,
 		MsgMarkSentFailed,
 		http.StatusInternalServerError,
 	)
 
-	ErrMarkFailedFailed = customerror.New(
+	ErrMarkFailedFailed = customerror.NewCustomError(
 		ErrCodeMarkFailedFailed,
 		MsgMarkFailedFailed,
 		http.StatusInternalServerError,

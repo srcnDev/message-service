@@ -35,8 +35,8 @@ type scheduler struct {
 // Compile-time interface compliance check
 var _ Scheduler = (*scheduler)(nil)
 
-// New creates a new scheduler with the given job and interval
-func New(job Job, interval time.Duration) (*scheduler, error) {
+// NewScheduler creates a new scheduler with the given job and interval
+func NewScheduler(job Job, interval time.Duration) (*scheduler, error) {
 	if interval <= 0 {
 		return nil, ErrInvalidInterval
 	}

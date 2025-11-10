@@ -26,31 +26,31 @@ const (
 
 // Predefined errors
 var (
-	ErrMessageNotFound = customerror.New(
+	ErrMessageNotFound = customerror.NewCustomError(
 		ErrCodeMessageNotFound,
 		MsgMessageNotFound,
 		http.StatusNotFound,
 	)
 
-	ErrMessageCreateFailed = customerror.New(
+	ErrMessageCreateFailed = customerror.NewCustomError(
 		ErrCodeMessageCreateFailed,
 		MsgMessageCreateFailed,
 		http.StatusInternalServerError,
 	)
 
-	ErrMessageUpdateFailed = customerror.New(
+	ErrMessageUpdateFailed = customerror.NewCustomError(
 		ErrCodeMessageUpdateFailed,
 		MsgMessageUpdateFailed,
 		http.StatusInternalServerError,
 	)
 
-	ErrMessageDeleteFailed = customerror.New(
+	ErrMessageDeleteFailed = customerror.NewCustomError(
 		ErrCodeMessageDeleteFailed,
 		MsgMessageDeleteFailed,
 		http.StatusInternalServerError,
 	)
 
-	ErrMessageListFailed = customerror.New(
+	ErrMessageListFailed = customerror.NewCustomError(
 		ErrCodeMessageListFailed,
 		MsgMessageListFailed,
 		http.StatusInternalServerError,

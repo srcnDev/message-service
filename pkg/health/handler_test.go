@@ -24,13 +24,13 @@ func (m *MockService) GetStatus() Status {
 // Verify MockService implements Service interface
 var _ Service = (*MockService)(nil)
 
-func TestNewHandler(t *testing.T) {
+func TestNewHealthHandler(t *testing.T) {
 	t.Run("creates handler successfully", func(t *testing.T) {
 		// Setup
 		mockService := new(MockService)
 
 		// Execute
-		h := NewHandler(mockService)
+		h := NewHealthHandler(mockService)
 
 		// Verify
 		assert.NotNil(t, h)
@@ -91,7 +91,7 @@ func TestHandler_Check(t *testing.T) {
 			mockService := new(MockService)
 			mockService.On("GetStatus").Return(tt.mockStatus)
 
-			h := NewHandler(mockService)
+			h := NewHealthHandler(mockService)
 
 			w := httptest.NewRecorder()
 			c, _ := gin.CreateTestContext(w)
@@ -120,7 +120,7 @@ func TestHandler_RegisterRoutes(t *testing.T) {
 	t.Run("registers health route", func(t *testing.T) {
 		// Setup
 		mockService := new(MockService)
-		h := NewHandler(mockService)
+		h := NewHealthHandler(mockService)
 
 		router := gin.New()
 		group := router.Group("/api")
@@ -151,7 +151,7 @@ func TestHandler_RegisterRoutes(t *testing.T) {
 	t.Run("route responds to GET method", func(t *testing.T) {
 		// Setup
 		mockService := new(MockService)
-		h := NewHandler(mockService)
+		h := NewHealthHandler(mockService)
 
 		router := gin.New()
 		group := router.Group("/api")
@@ -175,7 +175,7 @@ func TestHandler_RegisterRoutes(t *testing.T) {
 	t.Run("route does not respond to POST method", func(t *testing.T) {
 		// Setup
 		mockService := new(MockService)
-		h := NewHandler(mockService)
+		h := NewHealthHandler(mockService)
 
 		router := gin.New()
 		group := router.Group("/api")
@@ -202,7 +202,7 @@ func TestHandler_Check_MultipleRequests(t *testing.T) {
 			Uptime: "10m",
 		}).Times(5)
 
-		h := NewHandler(mockService)
+		h := NewHealthHandler(mockService)
 
 		// Execute - multiple requests
 		for i := 0; i < 5; i++ {
@@ -228,7 +228,7 @@ func TestHandler_InterfaceCompliance(t *testing.T) {
 		var _ Handler = (*handler)(nil)
 
 		mockService := new(MockService)
-		var _ Handler = NewHandler(mockService)
+		var _ Handler = NewHealthHandler(mockService)
 	})
 }
 
@@ -237,8 +237,8 @@ func TestHandler_Integration(t *testing.T) {
 
 	t.Run("handler works with real service", func(t *testing.T) {
 		// Setup - using real service instead of mock
-		realService := NewService()
-		h := NewHandler(realService)
+		realService := NewHealthService()
+		h := NewHealthHandler(realService)
 
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)

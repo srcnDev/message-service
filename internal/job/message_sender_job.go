@@ -36,7 +36,7 @@ func NewMessageSenderJob(senderService service.MessageSenderService, interval ti
 	}
 
 	// Create scheduler
-	sch, err := scheduler.New(j.run, interval)
+	sch, err := scheduler.NewScheduler(j.run, interval)
 	if err != nil {
 		return nil, apperror.ErrSchedulerInitFailed.WithError(err)
 	}

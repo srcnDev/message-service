@@ -41,8 +41,8 @@ type client struct {
 // Compile-time interface compliance check
 var _ Client = (*client)(nil)
 
-// New creates a new HTTP client
-func New(cfg Config) Client {
+// NewHTTPClient creates a new HTTP client
+func NewHTTPClient(cfg Config) Client {
 	if cfg.Timeout == 0 {
 		cfg.Timeout = 30 * time.Second
 	}

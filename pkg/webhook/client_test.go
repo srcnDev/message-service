@@ -305,7 +305,7 @@ func TestNew(t *testing.T) {
 		MaxRetries: 3,
 	}
 
-	webhookClient := New(cfg)
+	webhookClient := NewWebhookClient(cfg)
 
 	assert.NotNil(t, webhookClient)
 
@@ -325,7 +325,7 @@ func TestClient_InterfaceCompliance(t *testing.T) {
 		AuthKey: "key",
 	}
 
-	c := New(cfg)
+	c := NewWebhookClient(cfg)
 	assert.NotNil(t, c)
 
 	// Verify it satisfies Client interface

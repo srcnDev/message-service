@@ -28,37 +28,37 @@ const (
 
 // Predefined errors
 var (
-	ErrRedisConnectionFailed = customerror.New(
+	ErrRedisConnectionFailed = customerror.NewCustomError(
 		ErrCodeRedisConnectionFailed,
 		MsgRedisConnectionFailed,
 		http.StatusInternalServerError,
 	)
 
-	ErrRedisPingFailed = customerror.New(
+	ErrRedisPingFailed = customerror.NewCustomError(
 		ErrCodeRedisPingFailed,
 		MsgRedisPingFailed,
 		http.StatusInternalServerError,
 	)
 
-	ErrRedisSetFailed = customerror.New(
+	ErrRedisSetFailed = customerror.NewCustomError(
 		ErrCodeRedisSetFailed,
 		MsgRedisSetFailed,
 		http.StatusInternalServerError,
 	)
 
-	ErrRedisGetFailed = customerror.New(
+	ErrRedisGetFailed = customerror.NewCustomError(
 		ErrCodeRedisGetFailed,
 		MsgRedisGetFailed,
 		http.StatusInternalServerError,
 	)
 
-	ErrRedisDelFailed = customerror.New(
+	ErrRedisDelFailed = customerror.NewCustomError(
 		ErrCodeRedisDelFailed,
 		MsgRedisDelFailed,
 		http.StatusInternalServerError,
 	)
 
-	ErrRedisKeyNotFound = customerror.New(
+	ErrRedisKeyNotFound = customerror.NewCustomError(
 		ErrCodeRedisKeyNotFound,
 		MsgRedisKeyNotFound,
 		http.StatusNotFound,

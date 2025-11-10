@@ -24,25 +24,25 @@ const (
 
 // Predefined errors
 var (
-	ErrDatabaseConnectionFailed = customerror.New(
+	ErrDatabaseConnectionFailed = customerror.NewCustomError(
 		ErrCodeDatabaseConnectionFailed,
 		MsgDatabaseConnectionFailed,
 		http.StatusInternalServerError,
 	)
 
-	ErrDatabaseInstanceFailed = customerror.New(
+	ErrDatabaseInstanceFailed = customerror.NewCustomError(
 		ErrCodeDatabaseInstanceFailed,
 		MsgDatabaseInstanceFailed,
 		http.StatusInternalServerError,
 	)
 
-	ErrDatabasePingFailed = customerror.New(
+	ErrDatabasePingFailed = customerror.NewCustomError(
 		ErrCodeDatabasePingFailed,
 		MsgDatabasePingFailed,
 		http.StatusInternalServerError,
 	)
 
-	ErrDatabaseMigrationFailed = customerror.New(
+	ErrDatabaseMigrationFailed = customerror.NewCustomError(
 		ErrCodeDatabaseMigrationFailed,
 		MsgDatabaseMigrationFailed,
 		http.StatusInternalServerError,

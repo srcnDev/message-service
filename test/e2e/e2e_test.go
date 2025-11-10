@@ -113,7 +113,7 @@ func setupTestApp(t *testing.T, webhookURL string) (*gin.Engine, *gorm.DB, handl
 	cacheRepo := repository.NewMessageCacheRepository(nil) // No Redis in basic E2E test
 
 	// Create webhook client
-	webhookClient := webhook.New(webhook.Config{
+	webhookClient := webhook.NewWebhookClient(webhook.Config{
 		URL:        webhookURL,
 		AuthKey:    "test-auth-key",
 		Timeout:    10 * time.Second,

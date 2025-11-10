@@ -18,8 +18,8 @@ type handler struct {
 // Compile-time interface compliance check
 var _ Handler = (*handler)(nil)
 
-// NewHandler creates a new health check handler
-func NewHandler(service Service) Handler {
+// NewHealthHandler creates a new health check handler
+func NewHealthHandler(service Service) Handler {
 	return &handler{
 		service: service,
 	}
